@@ -1,3 +1,5 @@
+*.asv
+*.OCT
 *.csv
 *.jpg
 *.mat

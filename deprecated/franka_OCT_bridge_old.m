@@ -1,5 +1,11 @@
-%% test communication between OCT and robot
-% dependencies: python3.8
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% file name: franka_OCT_bridge.m
+% author: Xihan Ma
+% description: communication between OCT and robot. OCT images are captured
+% using screenshots, mouse clicks are recorded to get timing
+% dependencies: python 3.8
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 
 clc; clear; close all
 rosshutdown
 

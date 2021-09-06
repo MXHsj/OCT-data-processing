@@ -23,10 +23,12 @@ time_data = ...
 };
 
 % read data
-data_id = 1;
-OCT_data_folder = ['OCT_2D_scan/', oct_data{data_id}];
-robot_pose_log = csvread(pose_data{data_id});
-load(time_data{data_id});
+data_id = 2;
+OCT_data_folder = ['../data/OCT_2D_scan/', oct_data{data_id}];
+pose_data_folder = '../data/';
+time_data_folder = '../data/';
+robot_pose_log = csvread([pose_data_folder, pose_data{data_id}]);
+load([time_data_folder, time_data{data_id}]);
 OCT_data_info = dir(OCT_data_folder);
 
 robot_poses = zeros(4,4,size(robot_pose_log,1));
