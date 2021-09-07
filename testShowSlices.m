@@ -2,23 +2,28 @@
 clc; clear; close all
 
 % read data
-OCT_data_folder = 'OCT_3D_scan/2021-04-20';
+OCT_data_folder = '../data/OCT_3D_scan/2021-04-20/';
 OCT_data_info = dir(OCT_data_folder);
 
 tic;
-volumn_data = [];
+% volume_data = [];
+volume_data = single(zeros(1024,1573,numel(OCT_data_info)-2));
+threshold = 50;
 for item = 1:numel(OCT_data_info)
     if ~OCT_data_info(item).isdir
         img_rgb = imread([OCT_data_folder, OCT_data_info(item).name]);
-        img_gray = rgb2gray(img_rgb);
-        volumn_data = cat(3, volumn_data, img_gray);
+        img_gray = single(rgb2gray(img_rgb));
+        img_gray(img_gray(:,:) <= threshold) = nan;
+%         volume_data = cat(3, volume_data, img_gray);
+        volume_data(:,:,item-2) = img_gray;
         fprintf('read %dth image ... \n', item);
     end
 end
-fprintf('reading data takes %f sec', toc);
+fprintf('reading data takes %f sec\n', toc);
 
 %% visualize
-V_cropped = volumn_data(:,:,1:20);
+V_cropped = volume_data(:,:,1:50);  % show partial data to save time
+% volshow(V_cropped)
 
 x = linspace(-2.5, 2.5, 1573);
 y = linspace(-2, 0, 1024);
