@@ -6,23 +6,25 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 clc; clear; close all
+
+%%
 rosshutdown
 
 % ----------------- ROS network -----------------
-setenv('ROS_MASTER_URI','http://130.215.219.126:11311') % ip of robot desktop
+setenv('ROS_MASTER_URI','http://130.215.219.239:11311') % ip of robot desktop
 % [~, local_ip] = system('ipconfig');
-setenv('ROS_IP','130.215.208.1')   % ip of this machine
+setenv('ROS_IP','130.215.212.203')   % ip of this machine
 rosinit
 
 % ----------------- control flow -----------------
-freq = 25;
+freq = 20;
 rate = rateControl(freq);
 isStartScan = false;                % robot start scanning flag
 
 % ----------------- receive message from robot -----------------
-OCT_clk_ctrl_sub = rossubscriber('OCT_clk_ctrl', 'std_msgs/Int16', @OCT_clk_ctrl_callback);
+OCT_clk_ctrl_sub = rossubscriber('OCT_clk_ctrl', 'std_msgs/Int8', @OCT_clk_ctrl_callback);
 franka_pos_sub = rossubscriber('franka_state_custom', 'std_msgs/Float64MultiArray');
-global OCT_clk_ctrl franka_pose
+global OCT_clk_ctrl
 OCT_clk_ctrl = -1;
 franka_pose = zeros(4,4);
 % last_franka_pose = zeros(4,4);
@@ -39,20 +41,22 @@ threshold = 55;
 %% ----------------- initialize OCT -----------------
 [Dev, RawData, Data, Proc, Probe, ScanPattern] = LoadSpectralRadar();
 
+% ---------------------------------------------------
 %% main loop
 % pre-allocation
 BScan_bw = zeros(height,width,'logical');
 surf_row_ind = zeros(1,width);
-queue_size = 500;
-BScan_queue = zeros(width,height,queue_size);
-pose_queue = zeros(4,4,queue_size);
+queue_size = 1000;
+store_img_height = 700;
+BScan_queue = zeros(store_img_height,width,queue_size,'uint8');   % use uint8 to save space
+pose_queue = zeros(4,4,queue_size,'double');
 data_count = 1;
 while true
     tic;
 %     curr_time = rate.TotalElapsedTime;
     % ----------------- receive from robot ----------------
-%     franka_pose_msg = receive(franka_pos_sub);
-%     franka_pose = reshape([franka_pose_msg.Data],4,4)';
+    franka_pose_msg = receive(franka_pos_sub);
+    franka_pose = reshape([franka_pose_msg.Data],4,4)';
 
     if OCT_clk_ctrl == 1
         isStartScan = true;
@@ -60,15 +64,14 @@ while true
     end
     if OCT_clk_ctrl == 0
         isStartScan = false;
-        disp('robot finish scanning')
     end
     % -----------------------------------------------------
     
     % ----------------- get OCT image -----------------
     BScan = AcquireSingleBScan(Dev, RawData, Data, Proc);
+%     BScan = RawBScanFilter(BScan);
+
     % convert to binary image
-   
-%     BScan_norm = normalize(BScan, 'range', [0 1]);
     BScan_bw(BScan(:,:) > threshold) = 1;
     BScan_bw(BScan(:,:) <= threshold) = 0;
     imagesc(BScan_bw)
@@ -93,7 +96,7 @@ while true
     
     % ----------------- record OCT & pose data ----------------
     if isStartScan
-        BScan_queue(:,:,data_count) = BScan;
+        BScan_queue(:,:,data_count) = uint8(BScan(1:store_img_height,:));
         pose_queue(:,:,data_count) = franka_pose;
         data_count = data_count + 1;
         if data_count >= queue_size
@@ -119,18 +122,19 @@ while true
     toc
 end
 
+%% save data
+BScan2save = BScan_queue(:,:,1:data_count);
+pose2save = pose_queue(:,:,1:data_count);
+save(['../data/',date,'_BScan{breadboard}.mat'],'BScan2save')
+save(['../data/',date,'_franka_pose{breadboard}.mat'],'pose2save')
+
 %% finish
 UnloadSpectralRadar(Dev, RawData, Data, Proc, Probe, ScanPattern);
 clear Dev RawData Data Proc Probe ScanPattern
-unloadlibrary SpectralRadar 
+unloadlibrary SpectralRadar
 
 %% utilities
 function OCT_clk_ctrl_callback(~,message)
 global OCT_clk_ctrl
 OCT_clk_ctrl = [message.Data];
 end
-
-% function franka_pos_callback(~,message)
-% global franka_pose
-% franka_pose = reshape([message.Data],4,4)';
-% end
