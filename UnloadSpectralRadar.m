@@ -5,7 +5,7 @@
 % modified from AcquireSingleBScanForOCTFile.m
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
-function [] = UnloadSpectralRadar(Dev, RawData, Data, Proc, Probe, ScanPattern)
+function UnloadSpectralRadar(Dev, RawData, Data, Proc, Probe, ScanPattern)
 
 % stop measurement and clear configuration
 calllib('SpectralRadar','stopMeasurement', Dev);

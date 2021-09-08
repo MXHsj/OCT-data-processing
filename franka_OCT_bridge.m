@@ -9,32 +9,23 @@ clc; clear; close all
 rosshutdown
 
 % ----------------- ROS network -----------------
-setenv('ROS_MASTER_URI','http://130.215.11.95:11311') % ip of robot desktop
-[~, local_ip] = system('ipconfig');
+setenv('ROS_MASTER_URI','http://130.215.219.126:11311') % ip of robot desktop
+% [~, local_ip] = system('ipconfig');
 setenv('ROS_IP','130.215.212.203')   % ip of this machine
 rosinit
 
-% ----------------- time stuff -----------------
-freq = 30;
+% ----------------- control flow -----------------
+freq = 25;
 rate = rateControl(freq);
-
-isStartRecord = false;              % OCT start recording flag
 isStartScan = false;                % robot start scanning flag
 
-% ----------------- initialize OCT -----------------
-[Dev, RawData, Data, Proc, Probe, ScanPattern] = LoadSpectralRadar();
-
-
 % ----------------- receive message from robot -----------------
-OCT_clk_ctrl_sub = rossubscriber('OCT_clk_ctrl', 'std_msgs/Int16', ...
-    @OCT_clk_ctrl_callback);
-franka_pos_sub = rossubscriber('franka_state_custom', ...
-    'std_msgs/Float64MultiArray', @franka_pos_callback);
+OCT_clk_ctrl_sub = rossubscriber('OCT_clk_ctrl', 'std_msgs/Int16', @OCT_clk_ctrl_callback);
+franka_pos_sub = rossubscriber('franka_state_custom', 'std_msgs/Float64MultiArray');
 global OCT_clk_ctrl franka_pose
 OCT_clk_ctrl = -1;
 franka_pose = zeros(4,4);
 % last_franka_pose = zeros(4,4);
-
 
 % ----------------- send message to robot -----------------
 OCT_img_pub = rospublisher('OCT_img_fb', 'std_msgs/Float64MultiArray');
@@ -43,38 +34,43 @@ OCT_img_msg = rosmessage(OCT_img_pub);
 height = 1024; width = 1024;
 OCT_img_msg.Data = [height, 0.0, 0.0];
 last_surf_height = 0;
+threshold = 55;
 
+%% ----------------- initialize OCT -----------------
+[Dev, RawData, Data, Proc, Probe, ScanPattern] = LoadSpectralRadar();
 
 %% main loop
 % pre-allocation
 BScan_bw = zeros(height,width,'logical');
 surf_row_ind = zeros(1,width);
+queue_size = 500;
+BScan_queue = zeros(width,height,queue_size);
+pose_queue = zeros(4,4,queue_size);
+data_count = 1;
 while true
     tic;
-    curr_time = rate.TotalElapsedTime;
+%     curr_time = rate.TotalElapsedTime;
     % ----------------- receive from robot ----------------
 %     franka_pose_msg = receive(franka_pos_sub);
 %     franka_pose = reshape([franka_pose_msg.Data],4,4)';
 
-%     if OCT_clk_ctrl == 1 && startScanTime == -inf
-%         startScanTime = curr_time;
-%         isStartScan = true;
-%         disp('robot start scanning')
-%     end
-%     if OCT_clk_ctrl == 0 && endScanTime == -inf
-%         endScanTime = curr_time;
-%         isStartScan = false;
-%         disp('robot finish scanning')
-%     end
+    if OCT_clk_ctrl == 1
+        isStartScan = true;
+        disp('robot start scanning')
+    end
+    if OCT_clk_ctrl == 0
+        isStartScan = false;
+        disp('robot finish scanning')
+    end
     % -----------------------------------------------------
     
     % ----------------- get OCT image -----------------
     BScan = AcquireSingleBScan(Dev, RawData, Data, Proc);
     % convert to binary image
-    threshold = 0.75;
-    BScan_norm = normalize(BScan, 'range', [0 1]);
-    BScan_bw(BScan_norm(:,:) > threshold) = 1;
-    BScan_bw(BScan_norm(:,:) <= threshold) = 0;
+   
+%     BScan_norm = normalize(BScan, 'range', [0 1]);
+    BScan_bw(BScan(:,:) > threshold) = 1;
+    BScan_bw(BScan(:,:) <= threshold) = 0;
     imagesc(BScan_bw)
     % find target surface
     surf_height = find(sum(BScan_bw,2)>10,1,'first');
@@ -94,6 +90,17 @@ while true
         p = [0, height];
     end
     % -------------------------------------------------
+    
+    % ----------------- record OCT & pose data ----------------
+    if isStartScan
+        BScan_queue(:,:,data_count) = BScan;
+        pose_queue(:,:,data_count) = franka_pose;
+        data_count = data_count + 1;
+        if data_count >= queue_size
+            break
+        end
+    end
+    % ---------------------------------------------------------
     
     % ----------------- send to robot ----------------
     OCT_img_msg.Data(1) = 1-surf_height/height;       % surface height
@@ -116,3 +123,14 @@ end
 UnloadSpectralRadar(Dev, RawData, Data, Proc, Probe, ScanPattern);
 clear Dev RawData Data Proc Probe ScanPattern
 unloadlibrary SpectralRadar 
+
+%% utilities
+function OCT_clk_ctrl_callback(~,message)
+global OCT_clk_ctrl
+OCT_clk_ctrl = [message.Data];
+end
+
+% function franka_pos_callback(~,message)
+% global franka_pose
+% franka_pose = reshape([message.Data],4,4)';
+% end
