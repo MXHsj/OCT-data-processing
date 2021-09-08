@@ -11,7 +11,7 @@ rosshutdown
 % ----------------- ROS network -----------------
 setenv('ROS_MASTER_URI','http://130.215.219.126:11311') % ip of robot desktop
 % [~, local_ip] = system('ipconfig');
-setenv('ROS_IP','130.215.212.203')   % ip of this machine
+setenv('ROS_IP','130.215.208.1')   % ip of this machine
 rosinit
 
 % ----------------- control flow -----------------
