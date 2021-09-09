@@ -123,6 +123,7 @@ while true
 end
 
 %% save data
+% TODO: use sparse matrix
 BScan2save = BScan_queue(:,:,1:data_count);
 pose2save = pose_queue(:,:,1:data_count);
 save(['../data/',date,'_BScan{breadboard}.mat'],'BScan2save')
