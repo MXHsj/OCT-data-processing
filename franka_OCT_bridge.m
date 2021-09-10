@@ -7,19 +7,12 @@
 %%
 clc; clear; close all
 
-%%
+%% ----------------- ROS network -----------------
 rosshutdown
-
-% ----------------- ROS network -----------------
-setenv('ROS_MASTER_URI','http://130.215.219.239:11311') % ip of robot desktop
+setenv('ROS_MASTER_URI','http://130.215.214.12:11311') % ip of robot desktop
 % [~, local_ip] = system('ipconfig');
-setenv('ROS_IP','130.215.212.203')   % ip of this machine
+setenv('ROS_IP','130.215.192.178')   % ip of this machine
 rosinit
-
-% ----------------- control flow -----------------
-freq = 20;
-rate = rateControl(freq);
-isStartScan = false;                % robot start scanning flag
 
 % ----------------- receive message from robot -----------------
 OCT_clk_ctrl_sub = rossubscriber('OCT_clk_ctrl', 'std_msgs/Int8', @OCT_clk_ctrl_callback);
@@ -43,14 +36,19 @@ threshold = 55;
 
 % ---------------------------------------------------
 %% main loop
+% constant
+freq = 22;
+rate = rateControl(freq);
+isStartScan = false;                % robot start scanning flag
+queue_size = 2800;
+store_img_height = 700;
+data_count = 1;
 % pre-allocation
 BScan_bw = zeros(height,width,'logical');
 surf_row_ind = zeros(1,width);
-queue_size = 1000;
-store_img_height = 700;
 BScan_queue = zeros(store_img_height,width,queue_size,'uint8');   % use uint8 to save space
 pose_queue = zeros(4,4,queue_size,'double');
-data_count = 1;
+
 while true
     tic;
 %     curr_time = rate.TotalElapsedTime;
@@ -58,12 +56,14 @@ while true
     franka_pose_msg = receive(franka_pos_sub);
     franka_pose = reshape([franka_pose_msg.Data],4,4)';
 
-    if OCT_clk_ctrl == 1
+    if OCT_clk_ctrl == 1 && isStartScan == false
         isStartScan = true;
         disp('robot start scanning')
     end
-    if OCT_clk_ctrl == 0
+    if OCT_clk_ctrl == 0 && isStartScan == true
         isStartScan = false;
+        disp('robot stop scanning')
+        break
     end
     % -----------------------------------------------------
     
@@ -98,10 +98,11 @@ while true
     if isStartScan
         BScan_queue(:,:,data_count) = uint8(BScan(1:store_img_height,:));
         pose_queue(:,:,data_count) = franka_pose;
-        data_count = data_count + 1;
         if data_count >= queue_size
+            disp('reached maximum storage')
             break
         end
+        data_count = data_count + 1;
     end
     % ---------------------------------------------------------
     
@@ -125,8 +126,8 @@ end
 %% save data
 BScan2save = BScan_queue(:,:,1:data_count);
 pose2save = pose_queue(:,:,1:data_count);
-save(['../data/',date,'_BScan{breadboard}.mat'],'BScan2save')
-save(['../data/',date,'_franka_pose{breadboard}.mat'],'pose2save')
+save(['../data/',date,'_BScan{cuboid6}.mat'],'BScan2save')
+save(['../data/',date,'_franka_pose{cuboid6}.mat'],'pose2save')
 
 %% finish
 UnloadSpectralRadar(Dev, RawData, Data, Proc, Probe, ScanPattern);
