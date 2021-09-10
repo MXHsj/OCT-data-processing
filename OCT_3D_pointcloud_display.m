@@ -6,7 +6,7 @@
 clc; clear; close all
 isGenVid = false;
 % load data
-data2load = 4:5;
+data2load = 6:7;
 data.OCT = []; data.pose = [];
 tic;
 for id = data2load
@@ -15,7 +15,7 @@ for id = data2load
     data.pose = cat(3,data.pose,data_tmp.pose);
 end
 clear data_tmp id
-fprintf('read data took %d sec',toc);
+fprintf('read data took %d sec\n',toc);
 
 %% extract ROI
 tic;
@@ -25,7 +25,7 @@ pc_x_int = []; pc_y_int = []; pc_z_int = [];        % intensity
 yrange = 5e-3; zrange = 7e-3;
 height = size(data.OCT,1); width = size(data.OCT,2); frames = size(data.OCT,3);
 dispPerc = 1.0;
-imgFiltThresh = 55;
+imgFiltThresh = 50;
 dwnSmpRate = 0.012;
 
 for item = 1:round(dispPerc*frames)
@@ -69,9 +69,9 @@ end
 pc_x = single(pc_x);
 pc_y = single(pc_y);
 pc_z = single(pc_z);
-pc_x_int = normalize(single(pc_x_int),'range',[0 1]);
-pc_y_int = normalize(single(pc_y_int),'range',[0 1]);
-pc_z_int = normalize(single(pc_z_int),'range',[0 1]);
+% pc_x_int = normalize(single(pc_x_int),'range',[0 1]);
+% pc_y_int = normalize(single(pc_y_int),'range',[0 1]);
+% pc_z_int = normalize(single(pc_z_int),'range',[0 1]);
 fprintf('processing data takes %f sec \n', toc);
 clear BScan row col T xlocal ylocal zlocal xglobal yglobal zglobal
 
@@ -81,7 +81,7 @@ pc_int = [pc_x_int; pc_y_int; pc_z_int]';       % intensity
 pntcloud = pointCloud(pc_xyz,'Color',pc_int);
 pntcloud = pcdenoise(pntcloud);     % denoise
 pntcloud = pcdownsample(pntcloud,'random',0.9);
-pcshow(pntcloud,'MarkerSize',3)
+pcshow(pntcloud,'MarkerSize',4)
 xlabel('x [mm]'); ylabel('y [mm]'); zlabel('z [mm]')
 axis equal tight
 % make background white
