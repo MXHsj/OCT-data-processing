@@ -5,26 +5,11 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clc; clear; close all
 isGenVid = false;
-% prepare data
-oct_data = ...
-{
-    '08-Sep-2021_BScan.mat', ...
-    '08-Sep-2021_BScan{breadboard}.mat', ...
-};
-pose_data = ...
-{
-    '08-Sep-2021_franka_pose.mat', ...
-    '08-Sep-2021_franka_pose{breadboard}.mat', ...
-};
-
-% read data
-data_id = 2;
-data_folder = '../data/';
-load([data_folder,oct_data{data_id}]);
-load([data_folder,pose_data{data_id}]);
+% load data
+data = DataManagerOCT(1);
 
 %% load all images and set background to 0
-BScan = BScan2save;
+BScan = data.OCT;
 threshold = 55;
 for item = 1:size(BScan,3)
     BScan_curr = BScan(:,:,item);
@@ -32,7 +17,7 @@ for item = 1:size(BScan,3)
     BScan(:,:,item) = BScan_curr;
     fprintf('read %dth image ... \n', item);
 end
-clear BScan_curr BScan2save
+clear BScan_curr
 
 %% transform images to common coordinate frame
 res = 0.008;  % mm/pix 0.0044
@@ -42,7 +27,7 @@ FOV.z = 3;    % mm
 yrange = 5e-3; zrange = 10e-3;
 height = size(BScan,1); width = size(BScan,2);
 b_mode_volume = zeros(round(FOV.x/res),round(FOV.y/res),round(FOV.z/res),'uint8');
-T_init = pose2save(:,:,1);   % initial position
+T_init = data.pose(:,:,1);   % initial position
 
 % transform pixels
 tic;
@@ -52,7 +37,7 @@ for item = 1:size(BScan,3)
     ylocal = yrange/width.*col - yrange/width;
     zlocal = yrange/height.*row - zrange/height;
     
-    T = pose2save(:,:,item);
+    T = data.pose(:,:,item);
     [xglobal, yglobal, zglobal] = transformPoints(T,xlocal,ylocal,zlocal);
     for i = 1:length(row)
         xgrid = ceil(((xglobal(i)-T_init(1,end))*1e3)/res);
