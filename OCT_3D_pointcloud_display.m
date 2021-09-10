@@ -6,7 +6,7 @@
 clc; clear; close all
 isGenVid = false;
 % load data
-data2load = 2:5;
+data2load = 4:5;
 data.OCT = []; data.pose = [];
 tic;
 for id = data2load
@@ -82,16 +82,20 @@ pntcloud = pointCloud(pc_xyz,'Color',pc_int);
 pntcloud = pcdenoise(pntcloud);     % denoise
 pntcloud = pcdownsample(pntcloud,'random',0.9);
 pcshow(pntcloud,'MarkerSize',3)
-xlabel('x [mm]')
-ylabel('y [mm]')
-zlabel('z [mm]')
+xlabel('x [mm]'); ylabel('y [mm]'); zlabel('z [mm]')
 axis equal tight
+% make background white
+set(gcf,'color','w'); 
+set(gca,'color','w','XColor',[0.15 0.15 0.15],'YColor',[0.15 0.15 0.15],'ZColor',[0.15 0.15 0.15]);
+
 
 %% top view
 figure
 plot(pc_x.*1e3, pc_y.*1e3, '.k')
 axis equal tight
 grid on
-xlabel('x [mm]')
-ylabel('y [mm]')
+xlabel('x [mm]'); ylabel('y [mm]')
 title('top view')
+% convert top view to image
+% snpshot = getframe;
+% imagesc(snpshot.cdata);
