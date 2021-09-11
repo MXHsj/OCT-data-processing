@@ -9,7 +9,7 @@ clc; clear; close all
 
 %% ----------------- ROS network -----------------
 rosshutdown
-setenv('ROS_MASTER_URI','http://130.215.214.12:11311') % ip of robot desktop
+setenv('ROS_MASTER_URI','http://130.215.9.222:11311') % ip of robot desktop
 % [~, local_ip] = system('ipconfig');
 setenv('ROS_IP','130.215.192.178')   % ip of this machine
 rosinit
@@ -124,7 +124,6 @@ while true
 end
 
 %% save data
-% TODO: use sparse matrix
 BScan2save = BScan_queue(:,:,1:data_count);
 pose2save = pose_queue(:,:,1:data_count);
 save(['../data/',date,'_BScan{cuboid6}.mat'],'BScan2save')
