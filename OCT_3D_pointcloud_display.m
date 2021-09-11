@@ -3,10 +3,10 @@
 % author: Xihan Ma
 % description: display 3D pointcloud by extracting points from b-mode OCT
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% clc; clear; close all
+clc; clear; close all
 isGenVid = false;
 % load data
-data2load = 6:7;
+data2load = 12:13;
 data.OCT = []; data.pose = []; data_size = [];
 tic;
 for id = data2load
@@ -23,7 +23,7 @@ tic;
 pc_x = []; pc_y = []; pc_z = []; 
 pc_x_int = []; pc_y_int = []; pc_z_int = [];        % intensity
 
-yrange = 5e-3; zrange = 7e-3;
+yrange = 5e-3; zrange = 6.68e-3;
 height = size(data.OCT,1); width = size(data.OCT,2); frames = size(data.OCT,3);
 dispPerc = 1.0;
 imgFiltThresh = 50;
@@ -47,16 +47,10 @@ for item = 1:round(dispPerc*frames)
         end
         T = data.pose(:,:,item);
         % compensate for calibration err
-        if item > data_size(1)
-%             T = T*[1.0, 0.0012, 0.0045, -0.5606*1e-3;
-%                    -0.0013, 0.9997, 0.0045, -2.2921*1e-3;
-%                    -0.0044, -0.0238, 0.9997, 1.9615*1e-3;
-%                    0.0, 0.0, 0.0, 1.0];
-              T = T*[1.0, 0.0012, 0.0045, 0.0;
-                     -0.0013, 0.9997, 0.0045, -2.2921*1e-3;
-                     -0.0044, -0.0238, 0.9997, 0.0;
-                     0.0, 0.0, 0.0, 1.0];
-        end
+%       T = T*[1.0, 0.0012, 0.0045, -0.5606*1e-3;
+%              -0.0013, 0.9997, 0.0045, -2.2921*1e-3;
+%              -0.0044, -0.0238, 0.9997, 1.9615*1e-3;
+%              0.0, 0.0, 0.0, 1.0];
            
         [xglobal, yglobal, zglobal] = transformPoints(T,xlocal,ylocal,zlocal);
         % downsample
@@ -67,12 +61,6 @@ for item = 1:round(dispPerc*frames)
         yint = downsample(yint,ceil(dwnSmpRate*length(yint)));
         zint = downsample(zint,ceil(dwnSmpRate*length(zint)));
         % append
-%         pc_x = [pc_x, xglobal];
-%         pc_y = [pc_y, yglobal];
-%         pc_z = [pc_z, zglobal];
-%         pc_x_int = [pc_x_int, xint];
-%         pc_y_int = [pc_y_int, yint];
-%         pc_z_int = [pc_z_int, zint];
         pc_x = cat(2, pc_x, xglobal);
         pc_y = cat(2, pc_y, yglobal);
         pc_z = cat(2, pc_z, zglobal);
