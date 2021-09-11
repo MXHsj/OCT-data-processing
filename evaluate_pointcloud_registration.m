@@ -1,19 +1,13 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% file name: OCT_3D_pointcloud_display.m
-% author: Xihan Ma
-% description: display 3D pointcloud by extracting points from b-mode OCT
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% evaluation of pointcloud registration
+
 clc; clear; close all
-isGenVid = false;
+
 % load data
-data2load = 7;
-data.OCT = []; data.pose = [];
+id1 = 6;
+id2 = 7;
 tic;
-for id = data2load
-    data_tmp = DataManagerOCT(id);
-    data.OCT = cat(3,data.OCT,data_tmp.OCT);
-    data.pose = cat(3,data.pose,data_tmp.pose);
-end
+data1 = DataManagerOCT(id1);
+data2 = DataManagerOCT(id1);
 clear data_tmp id
 fprintf('read data took %f sec\n',toc);
 
@@ -45,14 +39,9 @@ for item = 1:round(dispPerc*frames)
             zint(i) = BScan(row(i),col(i));
         end
         T = data.pose(:,:,item);
-        % compensate for calibration err
-        T = T*[1.0, 0.0012, 0.0045, -0.5606*1e-3;
-               -0.0013, 0.9997, 0.0045, -2.2921*1e-3;
-               -0.0044, -0.0238, 0.9997, 1.9615*1e-3;
-               0.0, 0.0, 0.0, 1.0];
            
         [xglobal, yglobal, zglobal] = transformPoints(T,xlocal,ylocal,zlocal);
-        % downsample
+        % downsample by 30%
         xglobal = downsample(xglobal,ceil(dwnSmpRate*length(xglobal)));
         yglobal = downsample(yglobal,ceil(dwnSmpRate*length(yglobal)));
         zglobal = downsample(zglobal,ceil(dwnSmpRate*length(zglobal)));
@@ -76,28 +65,3 @@ pc_y = single(pc_y);
 pc_z = single(pc_z);
 fprintf('processing data takes %f sec \n', toc);
 clear BScan row col T xlocal ylocal zlocal xglobal yglobal zglobal
-
-%% create pointcloud
-pc_xyz = [pc_x.*1e3; pc_y.*1e3; pc_z.*1e3]';
-pc_int = [pc_x_int; pc_y_int; pc_z_int]';       % intensity
-pntcloud = pointCloud(pc_xyz,'Color',pc_int);
-pntcloud = pcdenoise(pntcloud);     % denoise
-pntcloud = pcdownsample(pntcloud,'random',0.9);
-pcshow(pntcloud,'MarkerSize',4)
-xlabel('x [mm]'); ylabel('y [mm]'); zlabel('z [mm]')
-axis equal tight
-% make background white
-set(gcf,'color','w'); 
-set(gca,'color','w','XColor',[0.15 0.15 0.15],'YColor',[0.15 0.15 0.15],'ZColor',[0.15 0.15 0.15]);
-
-
-%% top view
-figure
-plot(pc_x.*1e3, pc_y.*1e3, '.k')
-axis equal tight
-grid on
-xlabel('x [mm]'); ylabel('y [mm]')
-title('top view')
-% convert top view to image
-% snpshot = getframe;
-% imagesc(snpshot.cdata);
