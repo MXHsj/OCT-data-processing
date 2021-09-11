@@ -3,16 +3,17 @@
 % author: Xihan Ma
 % description: display 3D pointcloud by extracting points from b-mode OCT
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-clc; clear; close all
+% clc; clear; close all
 isGenVid = false;
 % load data
-data2load = 7;
-data.OCT = []; data.pose = [];
+data2load = 6:7;
+data.OCT = []; data.pose = []; data_size = [];
 tic;
 for id = data2load
     data_tmp = DataManagerOCT(id);
     data.OCT = cat(3,data.OCT,data_tmp.OCT);
     data.pose = cat(3,data.pose,data_tmp.pose);
+    data_size = cat(1,data_size,size(data_tmp.OCT,3));
 end
 clear data_tmp id
 fprintf('read data took %f sec\n',toc);
@@ -46,10 +47,16 @@ for item = 1:round(dispPerc*frames)
         end
         T = data.pose(:,:,item);
         % compensate for calibration err
-        T = T*[1.0, 0.0012, 0.0045, -0.5606*1e-3;
-               -0.0013, 0.9997, 0.0045, -2.2921*1e-3;
-               -0.0044, -0.0238, 0.9997, 1.9615*1e-3;
-               0.0, 0.0, 0.0, 1.0];
+        if item > data_size(1)
+%             T = T*[1.0, 0.0012, 0.0045, -0.5606*1e-3;
+%                    -0.0013, 0.9997, 0.0045, -2.2921*1e-3;
+%                    -0.0044, -0.0238, 0.9997, 1.9615*1e-3;
+%                    0.0, 0.0, 0.0, 1.0];
+              T = T*[1.0, 0.0012, 0.0045, 0.0;
+                     -0.0013, 0.9997, 0.0045, -2.2921*1e-3;
+                     -0.0044, -0.0238, 0.9997, 0.0;
+                     0.0, 0.0, 0.0, 1.0];
+        end
            
         [xglobal, yglobal, zglobal] = transformPoints(T,xlocal,ylocal,zlocal);
         % downsample
@@ -60,14 +67,18 @@ for item = 1:round(dispPerc*frames)
         yint = downsample(yint,ceil(dwnSmpRate*length(yint)));
         zint = downsample(zint,ceil(dwnSmpRate*length(zint)));
         % append
-        pc_x = [pc_x, xglobal];
-        pc_y = [pc_y, yglobal];
-        pc_z = [pc_z, zglobal];
-        pc_x_int = [pc_x_int, xint];
-        pc_y_int = [pc_y_int, yint];
-        pc_z_int = [pc_z_int, zint];
-    else
-        continue
+%         pc_x = [pc_x, xglobal];
+%         pc_y = [pc_y, yglobal];
+%         pc_z = [pc_z, zglobal];
+%         pc_x_int = [pc_x_int, xint];
+%         pc_y_int = [pc_y_int, yint];
+%         pc_z_int = [pc_z_int, zint];
+        pc_x = cat(2, pc_x, xglobal);
+        pc_y = cat(2, pc_y, yglobal);
+        pc_z = cat(2, pc_z, zglobal);
+        pc_x_int = cat(2, pc_x_int, xint);
+        pc_y_int = cat(2, pc_y_int, yint);
+        pc_z_int = cat(2, pc_z_int, zint);
     end
     fprintf('read %dth image ... \n', item);
 end
