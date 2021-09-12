@@ -45,12 +45,19 @@ for item = 1:round(dispPerc*frames)
             yint(i) = BScan(row(i),col(i));
             zint(i) = BScan(row(i),col(i));
         end
-        T = data.pose(:,:,item);
+        T = data.pose(:,:,item);        
         % compensate for calibration err
-%       T = T*[1.0, 0.0012, 0.0045, -0.5606*1e-3;
-%              -0.0013, 0.9997, 0.0045, -2.2921*1e-3;
-%              -0.0044, -0.0238, 0.9997, 1.9615*1e-3;
-%              0.0, 0.0, 0.0, 1.0];
+        if item > data_size(1)
+%         T = T*[1.0, 0.0012, 0.0045, -0.5606*1e-3;
+%                -0.0013, 0.9997, 0.0045, -2.2921*1e-3;
+%                -0.0044, -0.0238, 0.9997, 1.9615*1e-3;
+%                0.0, 0.0, 0.0, 1.0];
+            T = T * ...
+               [1.0000    0.0013   -0.0014    0.0900*1e-3;  % 0.1713
+               -0.0014    0.9973   -0.0739   -1.3164*1e-3;  % 9.7064
+                0.0013    0.0739    0.9973   -0.2411*1e-3;
+                     0         0         0    1.0000];
+        end
            
         [xglobal, yglobal, zglobal] = transformPoints(T,xlocal,ylocal,zlocal);
         % downsample

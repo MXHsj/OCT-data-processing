@@ -1,28 +1,19 @@
-%% evaluation of pointcloud registration
-
-clc; clear; close all
-
-% load data
-id1 = 6;
-id2 = 7;
-tic;
-data1 = DataManagerOCT(id1);
-data2 = DataManagerOCT(id1);
-clear data_tmp id
-fprintf('read data took %f sec\n',toc);
-
-%% extract pointcloud
-tic;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% file name: genPntcloudFrmBScan.m
+% author: Xihan Ma
+% description: generate pointcloud data from BScan images & robot poses
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+function [pc_xyz, pc_intensity] = genPntcloudFrmBScan(data)
 pc_x = []; pc_y = []; pc_z = []; 
 pc_x_int = []; pc_y_int = []; pc_z_int = [];        % intensity
 
 yrange = 5e-3; zrange = 7e-3;
 height = size(data.OCT,1); width = size(data.OCT,2); frames = size(data.OCT,3);
-dispPerc = 1.0;
 imgFiltThresh = 50;
 dwnSmpRate = 0.012;
 
-for item = 1:round(dispPerc*frames)
+for item = 1:frames
     BScan = data.OCT(:,:,item);
     [row,col] = find(BScan >= imgFiltThresh);
     if ~isempty(row) && ~isempty(col)
@@ -60,8 +51,7 @@ for item = 1:round(dispPerc*frames)
     end
     fprintf('read %dth image ... \n', item);
 end
-pc_x = single(pc_x);
-pc_y = single(pc_y);
-pc_z = single(pc_z);
+pc_xyz = single([pc_x.*1e3; pc_y.*1e3; pc_z.*1e3]');
+pc_intensity = [pc_x_int; pc_y_int; pc_z_int]';
 fprintf('processing data takes %f sec \n', toc);
-clear BScan row col T xlocal ylocal zlocal xglobal yglobal zglobal
+
