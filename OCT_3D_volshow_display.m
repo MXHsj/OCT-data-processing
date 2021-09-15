@@ -6,7 +6,7 @@
 clc; clear; close all
 isGenVid = false;
 % load data
-data2load = 12:13;
+data2load = 17:19;
 data.OCT = []; data.pose = []; data_size = [];
 tic;
 for id = data2load
@@ -30,7 +30,7 @@ end
 clear BScan_curr
 
 %% transform images to common coordinate frame
-res = 0.008;  % mm/pix 0.0044
+res = 0.0088;  % mm/pix 0.0044
 FOV.x = 6;    % mm 
 FOV.y = 8;    % mm
 FOV.z = 3;    % mm
