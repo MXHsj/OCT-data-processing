@@ -4,8 +4,8 @@
 % description: mannage OCT Bscans and robot pose data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
-function data = DataManagerOCT(data_id)
-
+function [data, sizes] = DataManagerOCT(data_id)
+data_folder = '../data/';
 oct_data = ...
 {
     '08-Sep-2021_BScan{breadboard}.mat', ...        % 1
@@ -58,15 +58,24 @@ pose_data = ...
     '15-Sep-2021_franka_pose{letters3}.mat', ...    % 22
 };
 
-if data_id <= length(oct_data)
-    % read data
-    data_folder = '../data/';
-    load([data_folder,oct_data{data_id}],'BScan2save');
-    load([data_folder,pose_data{data_id}],'pose2save');
+fprintf('loading %s ... \n',oct_data{data_id});
+fprintf('loading %s ... \n',pose_data{data_id});
+data.OCT = []; data.pose = []; sizes = [];
 
-    data.OCT = BScan2save;
-    data.pose = pose2save;
-else
-    data = [];
-    disp('data_id out of range');
+tic;
+for id = data_id
+    if id <= length(oct_data)
+        % read data
+        load([data_folder,oct_data{id}],'BScan2save');
+        load([data_folder,pose_data{id}],'pose2save');
+        data_tmp.OCT = BScan2save;
+        data_tmp.pose = pose2save;
+    else
+        data_tmp = [];
+        disp('data_id out of range');
+    end
+    data.OCT = cat(3,data.OCT,data_tmp.OCT);
+    data.pose = cat(3,data.pose,data_tmp.pose);
+    sizes = cat(1,sizes,size(data_tmp.OCT,3));
 end
+fprintf('read data took %f sec\n',toc);

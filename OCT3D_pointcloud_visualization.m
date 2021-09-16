@@ -7,17 +7,8 @@ clc; clear; close all
 isGenVid = false;
 % load data
 data2load = 20:22;
-data.OCT = []; data.pose = []; data_size = [];
-tic;
-for id = data2load
-    data_tmp = DataManagerOCT(id);
-    data.OCT = cat(3,data.OCT,data_tmp.OCT);
-    data.pose = cat(3,data.pose,data_tmp.pose);
-    data_size = cat(1,data_size,size(data_tmp.OCT,3));
-end
-clear data_tmp id
-fprintf('read data took %f sec\n',toc);
-probe = probeConfigOCT();       % get OCT probe configuration
+[data, data_sizes] = DataManagerOCT(data2load); 
+probe = probeConfigOCT();           % get OCT probe configuration
 
 %% generate pointcloud
 enCalibTune = true;
@@ -82,9 +73,7 @@ for item = 1:round(dispPerc*frames)
         pc_z_int = cat(2, pc_z_int, zint);
     end 
 end
-pc_x = single(pc_x);
-pc_y = single(pc_y);
-pc_z = single(pc_z);
+pc_x = single(pc_x); pc_y = single(pc_y); pc_z = single(pc_z);
 fprintf('processing data takes %f sec \n', toc);
 clear BScan row col T xlocal ylocal zlocal xglobal yglobal zglobal
 
@@ -99,7 +88,7 @@ pc_z_overlap = downsample(pc_z_overlap,2);
 pc_x = [pc_x, pc_x_overlap];
 pc_y = [pc_y, pc_y_overlap];
 pc_z = [pc_z, pc_z_overlap];
-% downsample intensity values in overlapping area
+% downsample intensities
 pc_x_int_overlap = pc_x_int(overlap_ind); pc_x_int(overlap_ind) = [];
 pc_y_int_overlap = pc_y_int(overlap_ind); pc_y_int(overlap_ind) = [];
 pc_z_int_overlap = pc_z_int(overlap_ind); pc_z_int(overlap_ind) = [];
@@ -110,21 +99,12 @@ pc_x_int = [pc_x_int, pc_x_int_overlap];
 pc_y_int = [pc_y_int, pc_y_int_overlap];
 pc_z_int = [pc_z_int, pc_z_int_overlap];
 
-%% generate pointcloud type
+%% generate pointcloud
 pc_xyz = [pc_x.*1e3; pc_y.*1e3; pc_z.*1e3]';
 pc_int = [pc_x_int; pc_y_int; pc_z_int]';       % intensity
 pntcloud = pointCloud(pc_xyz,'Color',pc_int);
 pntcloud = pcdenoise(pntcloud);                 % denoise
 pntcloud = pcdownsample(pntcloud,'random',0.9);
-% visualize pointcloud
-figure('Position',[500,100,1200,600])
-pcshow(pntcloud,'MarkerSize',4)
-xlabel('x [mm]'); ylabel('y [mm]'); zlabel('z [mm]')
-axis equal tight
-% make background white
-set(gcf,'color','w'); 
-set(gca,'color','w','XColor',[0.15 0.15 0.15],'YColor',[0.15 0.15 0.15],'ZColor',[0.15 0.15 0.15]);
-view(3);
 
 %% 2D views
 figure('Position',[500,100,1200,600])
@@ -145,3 +125,22 @@ title('X-Z plane'); axis equal tight; grid on;
 
 % snpshot = getframe;
 % imagesc(snpshot.cdata);
+
+%% visualize pointcloud
+figure('Position',[500,100,1200,600])
+pcshow(pntcloud,'MarkerSize',4)
+xlabel('x [mm]'); ylabel('y [mm]'); zlabel('z [mm]')
+axis equal tight; view(-5,74)
+% make background white
+set(gcf,'color','w'); 
+% set(gca,'color','w','XColor',[0.15 0.15 0.15],'YColor',[0.15 0.15 0.15],'ZColor',[0.15 0.15 0.15]);
+set(gca,'color','w','XColor',[1 1 1],'YColor',[1 1 1],'ZColor',[1 1 1]);    % supress axes
+
+% plot robot trajectory
+hold on
+position = reshape(data.pose(1:3,end,:),3,[]).*1e3;
+position(:,position(1,:)==0&position(2,:)==0&position(1,:)==0) = [];
+scatter3(position(1,:),position(2,:),position(3,:),repmat(5,1,length(position)),1:length(position))
+cb = colorbar('Ticks',[1,length(position)]);
+cb.Label.String = 'B-scan index'; cb.Label.FontSize = 12;
+
