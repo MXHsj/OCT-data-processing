@@ -27,6 +27,9 @@ oct_data = ...
     '14-Sep-2021_BScan{letters1}.mat', ...          % 17
     '14-Sep-2021_BScan{letters2}.mat', ...          % 18
     '14-Sep-2021_BScan{letters3}.mat', ...          % 19
+    '15-Sep-2021_BScan{letters1}.mat', ...          % 20
+    '15-Sep-2021_BScan{letters2}.mat', ...          % 21
+    '15-Sep-2021_BScan{letters3}.mat', ...          % 22
 };
 
 pose_data = ...
@@ -50,6 +53,9 @@ pose_data = ...
     '14-Sep-2021_franka_pose{letters1}.mat', ...    % 17
     '14-Sep-2021_franka_pose{letters2}.mat', ...    % 18
     '14-Sep-2021_franka_pose{letters3}.mat', ...    % 19
+    '15-Sep-2021_franka_pose{letters1}.mat', ...    % 20
+    '15-Sep-2021_franka_pose{letters2}.mat', ...    % 21
+    '15-Sep-2021_franka_pose{letters3}.mat', ...    % 22
 };
 
 if data_id <= length(oct_data)
