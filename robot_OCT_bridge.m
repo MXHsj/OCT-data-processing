@@ -9,7 +9,7 @@ clc; clear; close all
 
 %% ----------------- ROS network -----------------
 rosshutdown
-setenv('ROS_MASTER_URI','http://130.215.9.222:11311') % ip of robot desktop
+setenv('ROS_MASTER_URI','http://130.215.123.245:11311') % ip of robot desktop
 % [~, local_ip] = system('ipconfig');
 setenv('ROS_IP','130.215.192.178')   % ip of this machine
 rosinit
@@ -39,8 +39,9 @@ threshold = 55;
 % constant
 freq = 22;
 rate = rateControl(freq);
+OCT_clk_ctrl = 0;
 isStartScan = false;                % robot start scanning flag
-queue_size = 2800;
+queue_size = 3200;
 store_img_height = 700;
 data_count = 1;
 % pre-allocation
@@ -120,14 +121,14 @@ while true
     send(OCT_img_pub, OCT_img_msg)
     % ------------------------------------------------
     waitfor(rate);
-    toc
+    fprintf('loop time: %f, isStartScan: %d\n', toc, isStartScan);
 end
 
 %% save data
 BScan2save = BScan_queue(:,:,1:data_count);
 pose2save = pose_queue(:,:,1:data_count);
-save(['../data/',date,'_BScan{cuboid6}.mat'],'BScan2save')
-save(['../data/',date,'_franka_pose{cuboid6}.mat'],'pose2save')
+save(['../data/',date,'_BScan{exvivo6}.mat'],'BScan2save')
+save(['../data/',date,'_franka_pose{exvivo6}.mat'],'pose2save')
 
 %% finish
 UnloadSpectralRadar(Dev, RawData, Data, Proc, Probe, ScanPattern);
