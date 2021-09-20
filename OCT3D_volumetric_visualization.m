@@ -5,18 +5,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clc; clear; close all
 isGenVid = false;
-% load data
-data2load = 17:19;
-data.OCT = []; data.pose = []; data_size = [];
-tic;
-for id = data2load
-    data_tmp = DataManagerOCT(id);
-    data.OCT = cat(3,data.OCT,data_tmp.OCT);
-    data.pose = cat(3,data.pose,data_tmp.pose);
-    data_size = cat(1,data_size,size(data_tmp.OCT,3));
-end
-clear data_tmp id
-fprintf('read data took %f sec\n',toc);
+% load BScan & pose data
+data2load = 1;
+[data, data_sizes] = DataManagerOCT(data2load); 
 
 %% load all images and set background to 0
 BScan = data.OCT;

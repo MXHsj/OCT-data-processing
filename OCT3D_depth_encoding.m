@@ -1,16 +1,16 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% file name: OCT3D_pointcloud_display.m
+% file name: OCT3D_depth_encoding.m
 % author: Xihan Ma
-% description: display 3D pointcloud by extracting points from b-mode OCT
+% description: extract first peak from each AScan & generate 2D depth map
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clc; clear; close all
 isGenVid = false;
 % load BScan & pose data
-data2load = 13:14;
+data2load = 16:18;
 [data, data_sizes] = DataManagerOCT(data2load); 
-probe = probeConfigOCT();           % get OCT probe configuration
+probe = probeConfigOCT(); % get OCT probe configuration
 
-%% generate pointcloud
+%% extract first peak from AScan
 enCalibTune = true;
 rpy_flange_probe = rotm2eul(probe.T_flange_probe(1:3,1:3));
 rpy_flange_probe(1) = rpy_flange_probe(1) + 0;
@@ -23,13 +23,18 @@ T_flange_probe_new(1:3,1:3) = R_flange_probe_new;
 pc_x = []; pc_y = []; pc_z = []; 
 pc_x_int = []; pc_y_int = []; pc_z_int = [];        % intensity
 
-imgFiltThresh = 50;
-dwnSmpInterv = 0.012;
+dwnSmpInterv = 0.008;
+imgFiltThresh = 60;
 tic;
 for item = 1:size(data.OCT,3)
     fprintf('process %dth image ... \n', item);
     BScan = data.OCT(:,:,item);
-    [row,col] = find(BScan >= imgFiltThresh);
+    
+    % find first peak in each AScan, first peak is often the highest
+    [maxAScan, row] = max(BScan);
+    col = find(maxAScan > imgFiltThresh);
+    row = row(col);
+    
     if ~isempty(row) && ~isempty(col)
         xlocal = zeros(length(row),1);
         ylocal = -(probe.y/probe.width).*(col-1) + probe.y/2;
@@ -71,33 +76,6 @@ for item = 1:size(data.OCT,3)
 end
 pc_x = single(pc_x); pc_y = single(pc_y); pc_z = single(pc_z);
 fprintf('processing data takes %f sec \n', toc);
-% clear BScan row col T xlocal ylocal zlocal xglobal yglobal zglobal
-
-%% down sample 50% in overlapping area
-overlap_ind = find((pc_y>-3.59e-3 & pc_y<-1.69e-3)| ...
-                   (pc_y>-9.92e-3 & pc_y<-8.13e-3)| ...
-                   (pc_y>-15.68e-3 & pc_y<-13.67e-3)| ...
-                   (pc_y>-21.80e-3 & pc_y<-19.33e-3)| ...
-                   (pc_y>-27.59e-3 & pc_y<-25.62e-3));
-pc_x_overlap = pc_x(overlap_ind); pc_x(overlap_ind) = [];
-pc_y_overlap = pc_y(overlap_ind); pc_y(overlap_ind) = [];
-pc_z_overlap = pc_z(overlap_ind); pc_z(overlap_ind) = [];
-pc_x_overlap = downsample(pc_x_overlap,2);
-pc_y_overlap = downsample(pc_y_overlap,2);
-pc_z_overlap = downsample(pc_z_overlap,2);
-pc_x = [pc_x, pc_x_overlap];
-pc_y = [pc_y, pc_y_overlap];
-pc_z = [pc_z, pc_z_overlap];
-% downsample intensities
-pc_x_int_overlap = pc_x_int(overlap_ind); pc_x_int(overlap_ind) = [];
-pc_y_int_overlap = pc_y_int(overlap_ind); pc_y_int(overlap_ind) = [];
-pc_z_int_overlap = pc_z_int(overlap_ind); pc_z_int(overlap_ind) = [];
-pc_x_int_overlap = downsample(pc_x_int_overlap,2);
-pc_y_int_overlap = downsample(pc_y_int_overlap,2);
-pc_z_int_overlap = downsample(pc_z_int_overlap,2);
-pc_x_int = [pc_x_int, pc_x_int_overlap];
-pc_y_int = [pc_y_int, pc_y_int_overlap];
-pc_z_int = [pc_z_int, pc_z_int_overlap];
 
 %% generate pointcloud
 pc_xyz = [pc_x.*1e3; pc_y.*1e3; pc_z.*1e3]';
@@ -105,23 +83,6 @@ pc_int = [pc_x_int; pc_y_int; pc_z_int]';       % intensity
 pntcloud = pointCloud(pc_xyz,'Color',pc_int);
 pntcloud = pcdenoise(pntcloud);                 % denoise
 pntcloud = pcdownsample(pntcloud,'random',0.9);
-
-%% 2D views
-figure('Position',[500,100,1200,600])
-subplot(2,2,1)
-plot(pc_x.*1e3, pc_y.*1e3, '.','MarkerSize', 0.01)
-xlabel('x [mm]'); ylabel('y [mm]')
-title('X-Y plane'); axis equal tight; grid on
-
-subplot(2,2,2)
-plot(pc_y.*1e3, pc_z.*1e3, '.', 'MarkerSize', 0.01);
-xlabel('y [mm]'); ylabel('z [mm]')
-title('Y-Z plane'); axis equal tight; grid on;
-
-subplot(2,2,3)
-plot(pc_x.*1e3, pc_z.*1e3, '.', 'MarkerSize', 0.01);
-xlabel('x [mm]'); ylabel('z [mm]')
-title('X-Z plane'); axis equal tight; grid on;
 
 %% visualize pointcloud
 figure('Position',[500,100,1200,600])
@@ -140,3 +101,12 @@ position(:,position(1,:)==0&position(2,:)==0&position(1,:)==0) = [];
 scatter3(position(1,:),position(2,:),position(3,:),repmat(5,1,length(position)),1:length(position))
 cb = colorbar('Ticks',[1,length(position)]);
 cb.Label.String = 'B-scan index'; cb.Label.FontSize = 14;
+
+%% visualize 2D depth encoding
+figure('Position',[500,120,800,450])
+scatter(pc_x.*1e3,pc_y.*1e3,repmat(5,1,length(pc_x)),pc_z.*1e3)
+cb = colorbar('Ticks',linspace(min(pc_z.*1e3),max(pc_z.*1e3),5));
+cb.Label.String = 'depth [mm]'; cb.Label.FontSize = 14;
+xlabel('x [mm]'); ylabel('y [mm]');
+axis equal tight 
+axis off

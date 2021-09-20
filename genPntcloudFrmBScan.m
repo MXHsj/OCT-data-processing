@@ -53,5 +53,5 @@ for item = 1:frames
 end
 pc_xyz = single([pc_x.*1e3; pc_y.*1e3; pc_z.*1e3]');
 pc_intensity = [pc_x_int; pc_y_int; pc_z_int]';
-fprintf('processing data takes %f sec \n', toc);
+fprintf('processing data took %f sec \n', toc);
 

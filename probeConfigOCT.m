@@ -8,7 +8,7 @@ function probe = probeConfigOCT()
 
 probe.width = 1024;       % [pix]
 probe.height = 700;       % [pix]
-probe.x = 7.5e-3;         % [mm]
+probe.z = 7.5e-3;         % [mm]
 probe.y = 6.68e-3;        % [mm]
 
 % probe calibration 1
