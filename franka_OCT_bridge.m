@@ -9,9 +9,9 @@ clc; clear; close all
 
 %% ----------------- ROS network -----------------
 rosshutdown
-setenv('ROS_MASTER_URI','http://130.215.9.222:11311') % ip of robot desktop
+setenv('ROS_MASTER_URI','http://130.215.123.245:11311') % ip of robot desktop
 % [~, local_ip] = system('ipconfig');
-setenv('ROS_IP','130.215.192.178')   % ip of this machine
+setenv('ROS_IP','130.215.14.178')   % ip of this machine
 rosinit
 
 % ----------------- receive message from robot -----------------
@@ -29,7 +29,6 @@ OCT_img_msg = rosmessage(OCT_img_pub);
 height = 1024; width = 1024;
 OCT_img_msg.Data = [height, 0.0, 0.0];
 last_surf_height = 0;
-threshold = 55;
 
 %% ----------------- initialize OCT -----------------
 [Dev, RawData, Data, Proc, Probe, ScanPattern] = LoadSpectralRadar();
@@ -39,9 +38,11 @@ threshold = 55;
 % constant
 freq = 22;
 rate = rateControl(freq);
+OCT_clk_ctrl = 0;
 isStartScan = false;                % robot start scanning flag
-queue_size = 2800;
+queue_size = 3200;
 store_img_height = 700;
+threshold = 55;
 data_count = 1;
 % pre-allocation
 BScan_bw = zeros(height,width,'logical');
@@ -120,14 +121,14 @@ while true
     send(OCT_img_pub, OCT_img_msg)
     % ------------------------------------------------
     waitfor(rate);
-    toc
+    fprintf('loop time: %f, isStartScan: %d\n', toc, isStartScan);
 end
 
 %% save data
 BScan2save = BScan_queue(:,:,1:data_count);
 pose2save = pose_queue(:,:,1:data_count);
-save(['../data/',date,'_BScan{cuboid6}.mat'],'BScan2save')
-save(['../data/',date,'_franka_pose{cuboid6}.mat'],'pose2save')
+save(['../data/',date,'_BScan{exvivo3}.mat'],'BScan2save')
+save(['../data/',date,'_franka_pose{exvivo3}.mat'],'pose2save')
 
 %% finish
 UnloadSpectralRadar(Dev, RawData, Data, Proc, Probe, ScanPattern);
