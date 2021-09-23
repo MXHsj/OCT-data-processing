@@ -71,6 +71,16 @@ end
 pc_x = single(pc_x); pc_y = single(pc_y); pc_z = single(pc_z);
 fprintf('processing data takes %f sec \n', toc);
 
+%% visualize 2D depth encoding
+figure('Position',[500,120,1000,600])
+scatter(pc_x.*1e3,pc_y.*1e3,repmat(5,1,length(pc_x)),pc_z.*1e3,'filled')
+colormap(gca,'jet')
+cb = colorbar('Ticks',linspace(min(pc_z.*1e3),max(pc_z.*1e3),5));
+cb.Label.String = 'depth [mm]'; cb.Label.FontSize = 14;
+xlabel('x [mm]'); ylabel('y [mm]');
+axis equal tight 
+axis off
+
 %% generate pointcloud
 pc_xyz = [pc_x.*1e3; pc_y.*1e3; pc_z.*1e3]';
 pc_int = [pc_x_int; pc_y_int; pc_z_int]';       % intensity
@@ -86,7 +96,7 @@ axis equal tight
 % make background white
 set(gcf,'color','w'); 
 set(gca,'color','w','XColor',[0.15 0.15 0.15],'YColor',[0.15 0.15 0.15],'ZColor',[0.15 0.15 0.15]);
-view(0,54)
+view(0,90)  
 % plot robot trajectory
 hold on
 position = reshape(data.pose(1:3,end,:),3,[]).*1e3;
@@ -94,13 +104,3 @@ position(:,position(1,:)==0&position(2,:)==0&position(1,:)==0) = [];
 scatter3(position(1,:),position(2,:),position(3,:),repmat(5,1,length(position)),1:length(position))
 cb = colorbar('Ticks',[1,length(position)]);
 cb.Label.String = 'B-scan index'; cb.Label.FontSize = 14;
-
-%% visualize 2D depth encoding
-figure('Position',[500,120,1000,600])
-scatter(pc_x.*1e3,pc_y.*1e3,repmat(5,1,length(pc_x)),pc_z.*1e3,'filled')
-colormap(gca,'jet')
-cb = colorbar('Ticks',linspace(min(pc_z.*1e3),max(pc_z.*1e3),5));
-cb.Label.String = 'depth [mm]'; cb.Label.FontSize = 14;
-xlabel('x [mm]'); ylabel('y [mm]');
-axis equal tight 
-axis off

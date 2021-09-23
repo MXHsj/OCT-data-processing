@@ -4,7 +4,7 @@
 % description: mannage OCT probe configuration params
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
-function probe = ProbeConfigOCT(BScan)
+function probe = ProbeConfigOCT2(BScan)
 if nargin < 1
     probe.height = 700;             % [pix]
     probe.width = 1024;             % [pix]
