@@ -9,16 +9,15 @@ clc; clear; close all
 
 %% ----------------- ROS network -----------------
 rosshutdown
-setenv('ROS_MASTER_URI','http://130.215.123.245:11311') % ip of robot desktop
+setenv('ROS_MASTER_URI','http://130.215.223.132:11311') % ip of robot desktop
 % [~, local_ip] = system('ipconfig');
-setenv('ROS_IP','130.215.14.178')   % ip of this machine
+setenv('ROS_IP','130.215.192.178')   % ip of this machine
 rosinit
 
 % ----------------- receive message from robot -----------------
 OCT_clk_ctrl_sub = rossubscriber('OCT_clk_ctrl', 'std_msgs/Int8', @OCT_clk_ctrl_callback);
 franka_pos_sub = rossubscriber('franka_state_custom', 'std_msgs/Float64MultiArray');
 global OCT_clk_ctrl
-OCT_clk_ctrl = -1;
 franka_pose = zeros(4,4);
 % last_franka_pose = zeros(4,4);
 
@@ -42,7 +41,7 @@ OCT_clk_ctrl = 0;
 isStartScan = false;                % robot start scanning flag
 queue_size = 3200;
 store_img_height = 700;
-threshold = 55;
+threshold = 56;
 data_count = 1;
 % pre-allocation
 BScan_bw = zeros(height,width,'logical');
@@ -51,7 +50,7 @@ BScan_queue = zeros(store_img_height,width,queue_size,'uint8');   % use uint8 to
 pose_queue = zeros(4,4,queue_size,'double');
 
 while true
-    tic;
+    tic;    
 %     curr_time = rate.TotalElapsedTime;
     % ----------------- receive from robot ----------------
     franka_pose_msg = receive(franka_pos_sub);
@@ -70,14 +69,12 @@ while true
     
     % ----------------- get OCT image -----------------
     BScan = AcquireSingleBScan(Dev, RawData, Data, Proc);
-%     BScan = RawBScanFilter(BScan);
-
     % convert to binary image
     BScan_bw(BScan(:,:) > threshold) = 1;
     BScan_bw(BScan(:,:) <= threshold) = 0;
     imagesc(BScan_bw)
     % find target surface
-    surf_height = find(sum(BScan_bw,2)>10,1,'first');
+    surf_height = find(sum(BScan_bw,2) > 5, 1, 'first');
     surf_height(isempty(surf_height)) = height;
     % find slope
     for i = 1:width
@@ -127,8 +124,8 @@ end
 %% save data
 BScan2save = BScan_queue(:,:,1:data_count);
 pose2save = pose_queue(:,:,1:data_count);
-save(['../data/',date,'_BScan{exvivo3}.mat'],'BScan2save')
-save(['../data/',date,'_franka_pose{exvivo3}.mat'],'pose2save')
+save(['../data/',date,'_BScan{exvivo5-1}.mat'],'BScan2save')
+save(['../data/',date,'_franka_pose{exvivo5-1}.mat'],'pose2save')
 
 %% finish
 UnloadSpectralRadar(Dev, RawData, Data, Proc, Probe, ScanPattern);
