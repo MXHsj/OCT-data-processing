@@ -6,25 +6,19 @@
 clc; clear; close all
 isGenVid = false;
 % load BScan & pose data
-data2load = 16:18;
+data2load = 25:29;
 [data, data_sizes] = DataManagerOCT(data2load); 
-probe = probeConfigOCT(); % get OCT probe configuration
 
 %% extract first peak from AScan
+probe = probeConfigOCT(); % get OCT probe configuration
 enCalibTune = true;
-rpy_flange_probe = rotm2eul(probe.T_flange_probe(1:3,1:3));
-rpy_flange_probe(1) = rpy_flange_probe(1) + 0;
-rpy_flange_probe(2) = rpy_flange_probe(2) - 0;
-rpy_flange_probe(3) = rpy_flange_probe(3) + 0.1;
-R_flange_probe_new = eul2rotm(rpy_flange_probe);
-T_flange_probe_new = probe.T_flange_probe;
-T_flange_probe_new(1:3,1:3) = R_flange_probe_new;
+T_flange_probe_new = compCalibErr(probe.T_flange_probe);
 
 pc_x = []; pc_y = []; pc_z = []; 
 pc_x_int = []; pc_y_int = []; pc_z_int = [];        % intensity
 
-dwnSmpInterv = 0.008;
-imgFiltThresh = 60;
+dwnSmpInterv = 0.01;
+imgFiltThresh = 53;
 tic;
 for item = 1:size(data.OCT,3)
     fprintf('process %dth image ... \n', item);
@@ -51,7 +45,7 @@ for item = 1:size(data.OCT,3)
         T = data.pose(:,:,item);
         % compensate for calibration err
         if enCalibTune
-            T_base_flange = T*inv(probe.T_flange_probe);
+            T_base_flange = T/probe.T_flange_probe; % T*inv(probe.T_flange_probe)
             T = T_base_flange * T_flange_probe_new;
         end
         
@@ -83,13 +77,12 @@ pc_int = [pc_x_int; pc_y_int; pc_z_int]';       % intensity
 pntcloud = pointCloud(pc_xyz,'Color',pc_int);
 pntcloud = pcdenoise(pntcloud);                 % denoise
 pntcloud = pcdownsample(pntcloud,'random',0.9);
-
-%% visualize pointcloud
+% visualize pointcloud
 figure('Position',[500,100,1200,600])
 pcshow(pntcloud,'MarkerSize',4)
 xlabel('x [mm]'); ylabel('y [mm]'); zlabel('z [mm]')
 axis equal tight 
-axis off
+% axis off
 % make background white
 set(gcf,'color','w'); 
 set(gca,'color','w','XColor',[0.15 0.15 0.15],'YColor',[0.15 0.15 0.15],'ZColor',[0.15 0.15 0.15]);
@@ -104,7 +97,8 @@ cb.Label.String = 'B-scan index'; cb.Label.FontSize = 14;
 
 %% visualize 2D depth encoding
 figure('Position',[500,120,800,450])
-scatter(pc_x.*1e3,pc_y.*1e3,repmat(5,1,length(pc_x)),pc_z.*1e3)
+scatter(pc_x.*1e3,pc_y.*1e3,repmat(5,1,length(pc_x)),pc_z.*1e3,'filled')
+colormap(gca,'jet')
 cb = colorbar('Ticks',linspace(min(pc_z.*1e3),max(pc_z.*1e3),5));
 cb.Label.String = 'depth [mm]'; cb.Label.FontSize = 14;
 xlabel('x [mm]'); ylabel('y [mm]');

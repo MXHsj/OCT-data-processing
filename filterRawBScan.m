@@ -4,7 +4,7 @@
 % description: filter raw BScan
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
-function [BScan_filtered] = filterRawBScan(BScan, filter_id)
+function [BScan_filtered] = FilterRawBScan(BScan, filter_id)
 if nargin < 2
     filter_id = 1;
 end

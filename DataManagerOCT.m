@@ -32,6 +32,11 @@ oct_data = ...
     '16-Sep-2021_BScan{exvivo4}.mat', ...           % 22
     '16-Sep-2021_BScan{exvivo5}.mat', ...           % 23
     '16-Sep-2021_BScan{exvivo6}.mat', ...           % 24
+    '22-Sep-2021_BScan{exvivo1}.mat', ...           % 25
+    '22-Sep-2021_BScan{exvivo2}.mat', ...           % 26
+    '22-Sep-2021_BScan{exvivo3}.mat', ...           % 27
+    '22-Sep-2021_BScan{exvivo4}.mat', ...           % 28
+    '22-Sep-2021_BScan{exvivo5}.mat', ...           % 29
 };
 
 pose_data = ...
@@ -60,6 +65,11 @@ pose_data = ...
     '16-Sep-2021_franka_pose{exvivo4}.mat', ...     % 22
     '16-Sep-2021_franka_pose{exvivo5}.mat', ...     % 23
     '16-Sep-2021_franka_pose{exvivo6}.mat', ...     % 24
+    '22-Sep-2021_franka_pose{exvivo1}.mat', ...     % 25
+    '22-Sep-2021_franka_pose{exvivo2}.mat', ...     % 26
+    '22-Sep-2021_franka_pose{exvivo3}.mat', ...     % 27
+    '22-Sep-2021_franka_pose{exvivo4}.mat', ...     % 28
+    '22-Sep-2021_franka_pose{exvivo5}.mat', ...     % 29
 };
 
 fprintf('loading %s ... \n',oct_data{data_id});
@@ -68,7 +78,7 @@ data.OCT = []; data.pose = []; sizes = 0;
 
 tic;
 for id = data_id
-    if id <= length(oct_data)
+    if id <= length(oct_data) && id > 0
         % read data
         load([data_folder,oct_data{id}],'BScan2save');
         load([data_folder,pose_data{id}],'pose2save');

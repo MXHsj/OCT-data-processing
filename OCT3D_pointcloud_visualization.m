@@ -6,24 +6,18 @@
 clc; clear; close all
 isGenVid = false;
 % load BScan & pose data
-data2load = 13:14;
-[data, data_sizes] = DataManagerOCT(data2load); 
-probe = probeConfigOCT();           % get OCT probe configuration
+data2load = 25:29;
+[data, data_sizes] = DataManagerOCT(data2load);
 
 %% generate pointcloud
+probe = probeConfigOCT();           % get OCT probe configuration
 enCalibTune = true;
-rpy_flange_probe = rotm2eul(probe.T_flange_probe(1:3,1:3));
-rpy_flange_probe(1) = rpy_flange_probe(1) + 0;
-rpy_flange_probe(2) = rpy_flange_probe(2) - 0;
-rpy_flange_probe(3) = rpy_flange_probe(3) + 0.1;
-R_flange_probe_new = eul2rotm(rpy_flange_probe);
-T_flange_probe_new = probe.T_flange_probe;
-T_flange_probe_new(1:3,1:3) = R_flange_probe_new;
+T_flange_probe_new = compCalibErr(probe.T_flange_probe);
 
 pc_x = []; pc_y = []; pc_z = []; 
 pc_x_int = []; pc_y_int = []; pc_z_int = [];        % intensity
 
-imgFiltThresh = 50;
+imgFiltThresh = 55;
 dwnSmpInterv = 0.012;
 tic;
 for item = 1:size(data.OCT,3)
