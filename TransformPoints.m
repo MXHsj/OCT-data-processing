@@ -1,10 +1,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% file name: transformPoints.m
+% file name: TransformPoints.m
 % author: Xihan Ma
 % description: apply SE(3) homogenuous transformation T on [u,v,w]
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% 
-function [x,y,z] = transformPoints(T, u, v, w)
+function [x,y,z] = TransformPoints(T, u, v, w)
 
 x = zeros(1,length(u));
 y = zeros(1,length(u));

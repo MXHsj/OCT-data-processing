@@ -1,20 +1,20 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% file name: DataManagerOCT.m
+% file name: ProbeConfigOCT.m
 % author: Xihan Ma
 % description: mannage OCT probe configuration params
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 function probe = ProbeConfigOCT(BScan)
 if nargin < 1
-    probe.height = 700;     % [pix]
-    probe.width = 1024;     % [pix]
+    probe.height = 700;             % [pix]
+    probe.width = 1024;             % [pix]
 else
     probe.height = size(BScan,1);
     probe.width = size(BScan,2);
 end
-probe.resolution = 0.0076;  % [mm/pix]
-% probe.y = 7.8e-3;         % [mm]
-% probe.z = 6.68e-3;        % [mm]
+probe.resolution = 0.0078*1e-3;     % [mm/pix]
+% probe.y = 7.8e-3;                 % [mm]
+% probe.z = 6.68e-3;                % [mm]
 probe.y = probe.resolution*probe.width;
 probe.z = probe.resolution*probe.height;
 

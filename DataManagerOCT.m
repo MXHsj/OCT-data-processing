@@ -32,11 +32,16 @@ oct_data = ...
     '16-Sep-2021_BScan{exvivo4}.mat', ...           % 22
     '16-Sep-2021_BScan{exvivo5}.mat', ...           % 23
     '16-Sep-2021_BScan{exvivo6}.mat', ...           % 24
-    '22-Sep-2021_BScan{exvivo1}.mat', ...           % 25
-    '22-Sep-2021_BScan{exvivo2}.mat', ...           % 26
-    '22-Sep-2021_BScan{exvivo3}.mat', ...           % 27
-    '22-Sep-2021_BScan{exvivo4}.mat', ...           % 28
-    '22-Sep-2021_BScan{exvivo5}.mat', ...           % 29
+    '22-Sep-2021_BScan{exvivo1-1}.mat', ...           % 25
+    '22-Sep-2021_BScan{exvivo2-1}.mat', ...           % 26
+    '22-Sep-2021_BScan{exvivo3-1}.mat', ...           % 27
+    '22-Sep-2021_BScan{exvivo4-1}.mat', ...           % 28
+    '22-Sep-2021_BScan{exvivo5-1}.mat', ...           % 29
+    '22-Sep-2021_BScan{exvivo1}.mat', ...           % 30
+    '22-Sep-2021_BScan{exvivo2}.mat', ...           % 31
+    '22-Sep-2021_BScan{exvivo3}.mat', ...           % 32
+    '22-Sep-2021_BScan{exvivo4}.mat', ...           % 33
+    '22-Sep-2021_BScan{exvivo5}.mat', ...           % 34
 };
 
 pose_data = ...
@@ -65,11 +70,16 @@ pose_data = ...
     '16-Sep-2021_franka_pose{exvivo4}.mat', ...     % 22
     '16-Sep-2021_franka_pose{exvivo5}.mat', ...     % 23
     '16-Sep-2021_franka_pose{exvivo6}.mat', ...     % 24
-    '22-Sep-2021_franka_pose{exvivo1}.mat', ...     % 25
-    '22-Sep-2021_franka_pose{exvivo2}.mat', ...     % 26
-    '22-Sep-2021_franka_pose{exvivo3}.mat', ...     % 27
-    '22-Sep-2021_franka_pose{exvivo4}.mat', ...     % 28
-    '22-Sep-2021_franka_pose{exvivo5}.mat', ...     % 29
+    '22-Sep-2021_franka_pose{exvivo1-1}.mat', ...     % 25
+    '22-Sep-2021_franka_pose{exvivo2-1}.mat', ...     % 26
+    '22-Sep-2021_franka_pose{exvivo3-1}.mat', ...     % 27
+    '22-Sep-2021_franka_pose{exvivo4-1}.mat', ...     % 28
+    '22-Sep-2021_franka_pose{exvivo5-1}.mat', ...     % 29
+    '22-Sep-2021_franka_pose{exvivo1}.mat', ...     % 30
+    '22-Sep-2021_franka_pose{exvivo2}.mat', ...     % 31
+    '22-Sep-2021_franka_pose{exvivo3}.mat', ...     % 32
+    '22-Sep-2021_franka_pose{exvivo4}.mat', ...     % 33
+    '22-Sep-2021_franka_pose{exvivo5}.mat', ...     % 34
 };
 
 fprintf('loading %s ... \n',oct_data{data_id});

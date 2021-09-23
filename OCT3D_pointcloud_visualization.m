@@ -10,9 +10,9 @@ data2load = 25:29;
 [data, data_sizes] = DataManagerOCT(data2load);
 
 %% generate pointcloud
-probe = probeConfigOCT();           % get OCT probe configuration
+probe = ProbeConfigOCT();           % get OCT probe configuration
 enCalibTune = true;
-T_flange_probe_new = compCalibErr(probe.T_flange_probe);
+T_flange_probe_new = CompCalibErr(probe.T_flange_probe);
 
 pc_x = []; pc_y = []; pc_z = []; 
 pc_x_int = []; pc_y_int = []; pc_z_int = [];        % intensity
@@ -40,11 +40,11 @@ for item = 1:size(data.OCT,3)
         T = data.pose(:,:,item);
         % compensate for calibration err
         if enCalibTune
-            T_base_flange = T*inv(probe.T_flange_probe);
+            T_base_flange = T/probe.T_flange_probe; % T*inv(probe.T_flange_probe)
             T = T_base_flange * T_flange_probe_new;
         end
         
-        [xglobal, yglobal, zglobal] = transformPoints(T,xlocal,ylocal,zlocal);
+        [xglobal, yglobal, zglobal] = TransformPoints(T,xlocal,ylocal,zlocal);
         % downsample
         if dwnSmpInterv > 0
             xglobal = downsample(xglobal,ceil(dwnSmpInterv*length(xglobal)));

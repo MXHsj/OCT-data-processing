@@ -6,19 +6,19 @@
 clc; clear; close all
 isGenVid = false;
 % load BScan & pose data
-data2load = 25:29;
+data2load = 30:34;
 [data, data_sizes] = DataManagerOCT(data2load); 
 
 %% extract first peak from AScan
-probe = probeConfigOCT(); % get OCT probe configuration
+probe = ProbeConfigOCT(); % get OCT probe configuration
 enCalibTune = true;
-T_flange_probe_new = compCalibErr(probe.T_flange_probe);
+T_flange_probe_new = CompCalibErr(probe.T_flange_probe);
 
 pc_x = []; pc_y = []; pc_z = []; 
 pc_x_int = []; pc_y_int = []; pc_z_int = [];        % intensity
 
 dwnSmpInterv = 0.01;
-imgFiltThresh = 53;
+imgFiltThresh = 50;
 tic;
 for item = 1:size(data.OCT,3)
     fprintf('process %dth image ... \n', item);
@@ -49,7 +49,7 @@ for item = 1:size(data.OCT,3)
             T = T_base_flange * T_flange_probe_new;
         end
         
-        [xglobal, yglobal, zglobal] = transformPoints(T,xlocal,ylocal,zlocal);
+        [xglobal, yglobal, zglobal] = TransformPoints(T,xlocal,ylocal,zlocal);
         % downsample
         if dwnSmpInterv > 0
             xglobal = downsample(xglobal,ceil(dwnSmpInterv*length(xglobal)));
@@ -96,7 +96,7 @@ cb = colorbar('Ticks',[1,length(position)]);
 cb.Label.String = 'B-scan index'; cb.Label.FontSize = 14;
 
 %% visualize 2D depth encoding
-figure('Position',[500,120,800,450])
+figure('Position',[500,120,1000,600])
 scatter(pc_x.*1e3,pc_y.*1e3,repmat(5,1,length(pc_x)),pc_z.*1e3,'filled')
 colormap(gca,'jet')
 cb = colorbar('Ticks',linspace(min(pc_z.*1e3),max(pc_z.*1e3),5));

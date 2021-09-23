@@ -5,13 +5,14 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clc; clear; close all
 % load BScan & pose data
-data2load = 19:24;
+data2load = 30:34;
 [data, data_sizes] = DataManagerOCT(data2load); 
 
 %% visualization
 figure('Position',[500,100,640*1.5,480*1.5])
 rgb = imread('../data/22-Sep-2021_color_img{exvivo}.png');
-rgb = rgb+40;    % increase brightness
+rgb = rgb + 48;    % increase brightness
+
 % get color frame field of view
 % tlx = 0.515; tly = 0.08; disty = 0.18;        % 16-09-2021 exvivo
 tlx = 0.559; tly = 0.16; disty = 0.325;          % 22-09-2021 exvivo
