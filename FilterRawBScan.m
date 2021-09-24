@@ -16,8 +16,9 @@ BScan = single(BScan);
 if filter_id == 1
     % svd filtering -- faster
     [U,S,V] = svd(BScan);
-    eigen_begin = round(0.12*min(size(BScan)));
-    eigen_range = round(0.7*(min(size(BScan))-eigen_begin));
+    eigen_begin = round(0.04*min(size(BScan)));
+    eigen_range = round(0.98*(min(size(BScan))-eigen_begin));
+    % set eigen values in [begin, begin+range] to 0
     S(eigen_begin:eigen_range,eigen_begin:eigen_range) = 0;
     BScan_filtered = U*S*V';
     BScan_filtered = normalize(BScan_filtered, 'range', [0 1]);
@@ -28,9 +29,8 @@ elseif filter_id == 2
     PSF = fspecial('gaussian',7,10);
     V = 0.0001;
     BScan_blurred = imnoise(imfilter(BScan_norm,PSF),'gaussian',0,V);
-%     WT = zeros(size(BScan_bin)); WT(5:end-4,5:end-4) = 1;
     BScan_filtered = deconvlucy(double(BScan_blurred),PSF,20,sqrt(V));
-    BScan_filtered = imadjust(BScan_filtered,[0.58 0.9],[]);
+    BScan_filtered = imadjust(BScan_filtered,[0.5 0.9],[]);
     
 elseif filter_id == 3
     % svd + blur-deblur

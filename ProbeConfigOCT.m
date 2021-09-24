@@ -12,7 +12,7 @@ else
     probe.height = size(BScan,1);
     probe.width = size(BScan,2);
 end
-probe.resolution = 0.0078*1e-3;     % [mm/pix]
+probe.resolution = 0.0076*1e-3;     % [mm/pix]
 % probe.y = 7.8e-3;                 % [mm]
 % probe.z = 6.68e-3;                % [mm]
 probe.y = probe.resolution*probe.width;
