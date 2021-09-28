@@ -9,7 +9,7 @@ function T_flange_probe_new = CompCalibErr(T_flange_probe)
 rpy_flange_probe = rotm2eul(T_flange_probe(1:3,1:3));
 
 % compensate rotation
-rpy_flange_probe(1) = rpy_flange_probe(1) + 0.005;     % rotz
+rpy_flange_probe(1) = rpy_flange_probe(1) + 0.025;     % rotz
 rpy_flange_probe(2) = rpy_flange_probe(2) + 0.0;        % roty
 rpy_flange_probe(3) = rpy_flange_probe(3) + 0.048;      % rotx
 R_flange_probe_new = eul2rotm(rpy_flange_probe);

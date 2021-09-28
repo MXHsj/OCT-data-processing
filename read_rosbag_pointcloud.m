@@ -3,11 +3,9 @@
 % author: Xihan Ma
 % description: visualize camera pointcloud from rosbag file
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%
 clc; clear; close all
 
 bagfile = rosbag('../data/2021-09-27-22-56-08.bag');
-
 pcloud_topic = select(bagfile,'Topic','camera/depth/color/points');
 pcloud_msg = readMessages(pcloud_topic);
 pcloud_msg = pcloud_msg{1};
@@ -20,7 +18,6 @@ xyz(row2disc,:) = [];
 rgb(row2disc,:) = [];
 
 %% vis
-figure
 pntcloud = pointCloud(-xyz,'Color',rgb);
 % pntcloud = pcdenoise(pntcloud);                 % denoise
 % pntcloud = pcdownsample(pntcloud,'random',0.9);
@@ -36,5 +33,9 @@ set(gca,'color','w','XColor',[0.15 0.15 0.15],'YColor',[0.15 0.15 0.15],'ZColor'
 view(0,90)
 
 figure
-scatter(xyz(:,1),xyz(:,2),repmat(5,1,length(xyz)),xyz(:,3))
-axis equal off
+scatter(xyz(:,1).*1e3,-xyz(:,2).*1e3,repmat(5,1,length(xyz)),xyz(:,3).*1e3)
+xlabel('x [mm]'); ylabel('y [mm]')
+cb = colorbar();
+cb.Label.String = 'depth [mm]'; cb.Label.FontSize = 12;
+axis equal 
+% axis off

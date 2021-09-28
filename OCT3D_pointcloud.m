@@ -6,7 +6,7 @@
 clc; clear; close all
 isGenVid = false;
 % load BScan & pose data
-data2load = 25:29;
+data2load = 8:10;
 [data, data_sizes] = DataManagerOCT(data2load);
 
 %% generate pointcloud

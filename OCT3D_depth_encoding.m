@@ -6,7 +6,7 @@
 clc; clear; close all
 isGenVid = false;
 % load BScan & pose data
-data2load = 30:34;
+data2load = 8:10;
 [data, data_sizes] = DataManagerOCT(data2load); 
 
 %% extract first peak from AScan
@@ -69,18 +69,6 @@ for item = 1:size(data.OCT,3)
 end
 pc_x = single(pc_x); pc_y = single(pc_y); pc_z = single(pc_z);
 fprintf('processing data took %f sec \n', toc);
-
-%% average depth in the overlapping area
-% overlap_ind1 = find(pc_y>-3.60e-3 & pc_y<-3.55e-3);
-% overlap_ind2 = find(pc_y>-8.50e-3 & pc_y<-8.45e-3);
-% overlap_ind3 = find(pc_y>-14.60e-3 & pc_y<-14.55e-3);
-% overlap_ind4 = find(pc_y>-20.80e-3 & pc_y<-20.75e-3);
-% overlap_ind5 = find(pc_y>-26.60e-3 & pc_y<-26.55e-3);
-% pc_z(overlap_ind1) = mean(pc_z(overlap_ind1)); 
-% pc_z(overlap_ind2) = mean(pc_z(overlap_ind2));
-% pc_z(overlap_ind3) = mean(pc_z(overlap_ind3));
-% pc_z(overlap_ind4) = mean(pc_z(overlap_ind4));
-% pc_z(overlap_ind5) = mean(pc_z(overlap_ind5));
 
 %% visualize 2D depth encoding
 figure('Position',[500,120,1000,600])

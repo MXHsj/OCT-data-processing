@@ -5,7 +5,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clc; clear; close all
 % load BScan & pose data
-data2load = 30:34;
+data2load = 17:21;
 [data, data_sizes] = DataManagerOCT(data2load); 
 
 %% visualization

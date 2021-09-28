@@ -15,33 +15,20 @@ oct_data = ...
     '10-Sep-2021_BScan{cuboid4}.mat', ...           % 5
     '10-Sep-2021_BScan{cuboid5}.mat', ...           % 6
     '10-Sep-2021_BScan{cuboid6}.mat', ...           % 7
-    '12-Sep-2021_BScan{cuboid1}.mat', ...           % 8
-    '12-Sep-2021_BScan{cuboid2}.mat', ...           % 9
-    '12-Sep-2021_BScan{cuboid3}.mat', ...           % 10
-    '12-Sep-2021_BScan{cuboid4}.mat', ...           % 11
-    '12-Sep-2021_BScan{cuboid5}.mat', ...           % 12
-    '14-Sep-2021_BScan{letters1}.mat', ...          % 13
-    '14-Sep-2021_BScan{letters2}.mat', ...          % 14
-    '14-Sep-2021_BScan{letters3}.mat', ...          % 15
-    '15-Sep-2021_BScan{letters1}.mat', ...          % 16
-    '15-Sep-2021_BScan{letters2}.mat', ...          % 17
-    '15-Sep-2021_BScan{letters3}.mat', ...          % 18
-    '16-Sep-2021_BScan{exvivo1}.mat', ...           % 19
-    '16-Sep-2021_BScan{exvivo2}.mat', ...           % 20
-    '16-Sep-2021_BScan{exvivo3}.mat', ...           % 21
-    '16-Sep-2021_BScan{exvivo4}.mat', ...           % 22
-    '16-Sep-2021_BScan{exvivo5}.mat', ...           % 23
-    '16-Sep-2021_BScan{exvivo6}.mat', ...           % 24
-    '22-Sep-2021_BScan{exvivo1-1}.mat', ...           % 25
-    '22-Sep-2021_BScan{exvivo2-1}.mat', ...           % 26
-    '22-Sep-2021_BScan{exvivo3-1}.mat', ...           % 27
-    '22-Sep-2021_BScan{exvivo4-1}.mat', ...           % 28
-    '22-Sep-2021_BScan{exvivo5-1}.mat', ...           % 29
-    '22-Sep-2021_BScan{exvivo1}.mat', ...           % 30
-    '22-Sep-2021_BScan{exvivo2}.mat', ...           % 31
-    '22-Sep-2021_BScan{exvivo3}.mat', ...           % 32
-    '22-Sep-2021_BScan{exvivo4}.mat', ...           % 33
-    '22-Sep-2021_BScan{exvivo5}.mat', ...           % 34
+    '15-Sep-2021_BScan{letters1}.mat', ...          % 8
+    '15-Sep-2021_BScan{letters2}.mat', ...          % 9
+    '15-Sep-2021_BScan{letters3}.mat', ...          % 10
+    '16-Sep-2021_BScan{exvivo1}.mat', ...           % 11
+    '16-Sep-2021_BScan{exvivo2}.mat', ...           % 12
+    '16-Sep-2021_BScan{exvivo3}.mat', ...           % 13
+    '16-Sep-2021_BScan{exvivo4}.mat', ...           % 14
+    '16-Sep-2021_BScan{exvivo5}.mat', ...           % 15
+    '16-Sep-2021_BScan{exvivo6}.mat', ...           % 16
+    '22-Sep-2021_BScan{exvivo1}.mat', ...           % 17
+    '22-Sep-2021_BScan{exvivo2}.mat', ...           % 18
+    '22-Sep-2021_BScan{exvivo3}.mat', ...           % 19
+    '22-Sep-2021_BScan{exvivo4}.mat', ...           % 20
+    '22-Sep-2021_BScan{exvivo5}.mat', ...           % 21
 };
 
 pose_data = ...
@@ -53,33 +40,20 @@ pose_data = ...
     '10-Sep-2021_franka_pose{cuboid4}.mat', ...     % 5
     '10-Sep-2021_franka_pose{cuboid5}.mat', ...     % 6
     '10-Sep-2021_franka_pose{cuboid6}.mat', ...     % 7
-    '12-Sep-2021_franka_pose{cuboid1}.mat', ...     % 8
-    '12-Sep-2021_franka_pose{cuboid2}.mat', ...     % 9
-    '12-Sep-2021_franka_pose{cuboid3}.mat', ...     % 10
-    '12-Sep-2021_franka_pose{cuboid4}.mat', ...     % 11
-    '12-Sep-2021_franka_pose{cuboid5}.mat', ...     % 12
-    '14-Sep-2021_franka_pose{letters1}.mat', ...    % 13
-    '14-Sep-2021_franka_pose{letters2}.mat', ...    % 14
-    '14-Sep-2021_franka_pose{letters3}.mat', ...    % 15
-    '15-Sep-2021_franka_pose{letters1}.mat', ...    % 16
-    '15-Sep-2021_franka_pose{letters2}.mat', ...    % 17
-    '15-Sep-2021_franka_pose{letters3}.mat', ...    % 18
-    '16-Sep-2021_franka_pose{exvivo1}.mat', ...     % 19
-    '16-Sep-2021_franka_pose{exvivo2}.mat', ...     % 20
-    '16-Sep-2021_franka_pose{exvivo3}.mat', ...     % 21
-    '16-Sep-2021_franka_pose{exvivo4}.mat', ...     % 22
-    '16-Sep-2021_franka_pose{exvivo5}.mat', ...     % 23
-    '16-Sep-2021_franka_pose{exvivo6}.mat', ...     % 24
-    '22-Sep-2021_franka_pose{exvivo1-1}.mat', ...     % 25
-    '22-Sep-2021_franka_pose{exvivo2-1}.mat', ...     % 26
-    '22-Sep-2021_franka_pose{exvivo3-1}.mat', ...     % 27
-    '22-Sep-2021_franka_pose{exvivo4-1}.mat', ...     % 28
-    '22-Sep-2021_franka_pose{exvivo5-1}.mat', ...     % 29
-    '22-Sep-2021_franka_pose{exvivo1}.mat', ...     % 30
-    '22-Sep-2021_franka_pose{exvivo2}.mat', ...     % 31
-    '22-Sep-2021_franka_pose{exvivo3}.mat', ...     % 32
-    '22-Sep-2021_franka_pose{exvivo4}.mat', ...     % 33
-    '22-Sep-2021_franka_pose{exvivo5}.mat', ...     % 34
+    '15-Sep-2021_franka_pose{letters1}.mat', ...    % 8
+    '15-Sep-2021_franka_pose{letters2}.mat', ...    % 9
+    '15-Sep-2021_franka_pose{letters3}.mat', ...    % 10
+    '16-Sep-2021_franka_pose{exvivo1}.mat', ...     % 11
+    '16-Sep-2021_franka_pose{exvivo2}.mat', ...     % 12
+    '16-Sep-2021_franka_pose{exvivo3}.mat', ...     % 13
+    '16-Sep-2021_franka_pose{exvivo4}.mat', ...     % 14
+    '16-Sep-2021_franka_pose{exvivo5}.mat', ...     % 15
+    '16-Sep-2021_franka_pose{exvivo6}.mat', ...     % 16
+    '22-Sep-2021_franka_pose{exvivo1}.mat', ...     % 17
+    '22-Sep-2021_franka_pose{exvivo2}.mat', ...     % 18
+    '22-Sep-2021_franka_pose{exvivo3}.mat', ...     % 19
+    '22-Sep-2021_franka_pose{exvivo4}.mat', ...     % 20
+    '22-Sep-2021_franka_pose{exvivo5}.mat', ...     % 21
 };
 
 fprintf('loading %s ... \n',oct_data{data_id});
