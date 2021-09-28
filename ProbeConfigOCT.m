@@ -12,11 +12,13 @@ else
     probe.height = size(BScan,1);
     probe.width = size(BScan,2);
 end
-probe.resolution = 0.0076*1e-3;     % [mm/pix]
-% probe.y = 7.8e-3;                 % [mm]
-% probe.z = 6.68e-3;                % [mm]
-probe.y = probe.resolution*probe.width;
-probe.z = probe.resolution*probe.height;
+
+probe.y = 7.8e-3;                    % [m]
+probe.z = 2.45e-3;                   % [m]
+
+% probe.resolution = 0.0076*1e-3;     % [m/pix]
+% probe.y = probe.resolution*probe.width;
+% probe.z = probe.resolution*probe.height;
 
 % probe calibration 1
 % probe.T_flange_probe = [0.866,-0.5,0,0; 0.5,0.866,0,0; 0,0,1,0; 0.097,-0.059,0.2529,1]';

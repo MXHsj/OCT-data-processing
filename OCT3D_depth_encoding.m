@@ -24,13 +24,13 @@ for item = 1:size(data.OCT,3)
     fprintf('process %dth image ... \n', item);
     BScan = data.OCT(:,:,item);
     
-    % find first peak in each AScan, first peak is often the highest
+    % find highest peak in each AScan
     [maxAScan, row] = max(BScan);
     col = find(maxAScan > imgFiltThresh);
     row = row(col);
     
     if ~isempty(row) && ~isempty(col)
-        xlocal = zeros(length(row),1);
+        xlocal = zeros(1,length(row));
         ylocal = -(probe.y/probe.width).*(col-1) + probe.y/2;
         zlocal = (probe.z/probe.height).*(row-1);
 
@@ -48,7 +48,6 @@ for item = 1:size(data.OCT,3)
             T_base_flange = T/probe.T_flange_probe; % T*inv(probe.T_flange_probe)
             T = T_base_flange * T_flange_probe_new;
         end
-        
         [xglobal, yglobal, zglobal] = TransformPoints(T,xlocal,ylocal,zlocal);
         % downsample
         if dwnSmpInterv > 0
@@ -69,7 +68,19 @@ for item = 1:size(data.OCT,3)
     end 
 end
 pc_x = single(pc_x); pc_y = single(pc_y); pc_z = single(pc_z);
-fprintf('processing data takes %f sec \n', toc);
+fprintf('processing data took %f sec \n', toc);
+
+%% average depth in the overlapping area
+% overlap_ind1 = find(pc_y>-3.60e-3 & pc_y<-3.55e-3);
+% overlap_ind2 = find(pc_y>-8.50e-3 & pc_y<-8.45e-3);
+% overlap_ind3 = find(pc_y>-14.60e-3 & pc_y<-14.55e-3);
+% overlap_ind4 = find(pc_y>-20.80e-3 & pc_y<-20.75e-3);
+% overlap_ind5 = find(pc_y>-26.60e-3 & pc_y<-26.55e-3);
+% pc_z(overlap_ind1) = mean(pc_z(overlap_ind1)); 
+% pc_z(overlap_ind2) = mean(pc_z(overlap_ind2));
+% pc_z(overlap_ind3) = mean(pc_z(overlap_ind3));
+% pc_z(overlap_ind4) = mean(pc_z(overlap_ind4));
+% pc_z(overlap_ind5) = mean(pc_z(overlap_ind5));
 
 %% visualize 2D depth encoding
 figure('Position',[500,120,1000,600])
@@ -79,7 +90,7 @@ cb = colorbar('Ticks',linspace(min(pc_z.*1e3),max(pc_z.*1e3),5));
 cb.Label.String = 'depth [mm]'; cb.Label.FontSize = 14;
 xlabel('x [mm]'); ylabel('y [mm]');
 axis equal tight 
-axis off
+% axis off
 
 %% generate pointcloud
 pc_xyz = [pc_x.*1e3; pc_y.*1e3; pc_z.*1e3]';
@@ -96,7 +107,7 @@ axis equal tight
 % make background white
 set(gcf,'color','w'); 
 set(gca,'color','w','XColor',[0.15 0.15 0.15],'YColor',[0.15 0.15 0.15],'ZColor',[0.15 0.15 0.15]);
-view(0,90)  
+view(-90,0)     % view(0,90)
 % plot robot trajectory
 hold on
 position = reshape(data.pose(1:3,end,:),3,[]).*1e3;
