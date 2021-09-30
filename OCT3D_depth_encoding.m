@@ -6,7 +6,7 @@
 clc; clear; close all
 isGenVid = false;
 % load BScan & pose data
-data2load = 8:10;
+data2load = 22:26;
 [data, data_sizes] = DataManagerOCT(data2load); 
 
 %% extract first peak from AScan
@@ -17,8 +17,8 @@ T_flange_probe_new = CompCalibErr(probe.T_flange_probe);
 pc_x = []; pc_y = []; pc_z = []; 
 pc_x_int = []; pc_y_int = []; pc_z_int = [];        % intensity
 
-dwnSmpInterv = 0.01;
-imgFiltThresh = 50;
+dwnSmpInterv = 0.011;
+imgFiltThresh = 47.5;
 tic;
 for item = 1:size(data.OCT,3)
     fprintf('process %dth image ... \n', item);
@@ -95,7 +95,8 @@ axis equal tight
 % make background white
 set(gcf,'color','w'); 
 set(gca,'color','w','XColor',[0.15 0.15 0.15],'YColor',[0.15 0.15 0.15],'ZColor',[0.15 0.15 0.15]);
-view(-90,0)     % view(0,90)
+% view(-90,0)     
+view(0,90)
 % plot robot trajectory
 hold on
 position = reshape(data.pose(1:3,end,:),3,[]).*1e3;

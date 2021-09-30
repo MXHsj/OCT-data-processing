@@ -18,17 +18,22 @@ oct_data = ...
     '15-Sep-2021_BScan{letters1}.mat', ...          % 8
     '15-Sep-2021_BScan{letters2}.mat', ...          % 9
     '15-Sep-2021_BScan{letters3}.mat', ...          % 10
-    '16-Sep-2021_BScan{exvivo1}.mat', ...           % 11
+    '16-Sep-2021_BScan{exvivo1}.mat', ...           % 11    sliced kidney
     '16-Sep-2021_BScan{exvivo2}.mat', ...           % 12
     '16-Sep-2021_BScan{exvivo3}.mat', ...           % 13
     '16-Sep-2021_BScan{exvivo4}.mat', ...           % 14
     '16-Sep-2021_BScan{exvivo5}.mat', ...           % 15
     '16-Sep-2021_BScan{exvivo6}.mat', ...           % 16
-    '22-Sep-2021_BScan{exvivo1}.mat', ...           % 17
+    '22-Sep-2021_BScan{exvivo1}.mat', ...           % 17    cubic kidney
     '22-Sep-2021_BScan{exvivo2}.mat', ...           % 18
     '22-Sep-2021_BScan{exvivo3}.mat', ...           % 19
     '22-Sep-2021_BScan{exvivo4}.mat', ...           % 20
     '22-Sep-2021_BScan{exvivo5}.mat', ...           % 21
+    '28-Sep-2021_BScan{exvivo1}.mat', ...           % 22    entire kidney
+    '28-Sep-2021_BScan{exvivo2}.mat', ...           % 23
+    '28-Sep-2021_BScan{exvivo3}.mat', ...           % 24
+    '28-Sep-2021_BScan{exvivo4}.mat', ...           % 25
+    '28-Sep-2021_BScan{exvivo5}.mat', ...           % 26
 };
 
 pose_data = ...
@@ -54,6 +59,11 @@ pose_data = ...
     '22-Sep-2021_franka_pose{exvivo3}.mat', ...     % 19
     '22-Sep-2021_franka_pose{exvivo4}.mat', ...     % 20
     '22-Sep-2021_franka_pose{exvivo5}.mat', ...     % 21
+    '28-Sep-2021_franka_pose{exvivo1}.mat', ...     % 22
+    '28-Sep-2021_franka_pose{exvivo2}.mat', ...     % 23
+    '28-Sep-2021_franka_pose{exvivo3}.mat', ...     % 24
+    '28-Sep-2021_franka_pose{exvivo4}.mat', ...     % 25
+    '28-Sep-2021_franka_pose{exvivo5}.mat', ...     % 26
 };
 
 fprintf('loading %s ... \n',oct_data{data_id});

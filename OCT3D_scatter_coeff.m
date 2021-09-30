@@ -6,21 +6,22 @@
 clc; clear; close all
 isGenVid = false;
 % load BScan & pose data
-data2load = 16:18;
+data2load = 23:25;
 [data, data_sizes] = DataManagerOCT(data2load); 
 
 %% extract first peak from AScan
 probe = ProbeConfigOCT(); % get OCT probe configuration
 enCalibTune = true;
+limRange = true;
 T_flange_probe_new = CompCalibErr(probe.T_flange_probe);
 
 pc_x = []; pc_y = []; pc_z = []; 
 scatter_coeff = [];     % single scattering model
 
-dwnSmpInterv = 0;
-imgFiltThresh = 50;
+dwnSmpInterv = 0.00;
+imgFiltThresh = 48;
 tic;
-for item = 1:100%size(data.OCT,3)
+for item = 1:size(data.OCT,3)
     fprintf('process %dth image ... \n', item);
     BScan = data.OCT(:,:,item);
     % get scattering coefficient
@@ -65,12 +66,19 @@ end
 pc_x = single(pc_x); pc_y = single(pc_y); pc_z = single(pc_z);
 fprintf('processing data takes %f sec \n', toc);
 
+%% limit scattering coeff value range
+if limRange
+    lowBound = 0; upBound = 6.5e-3; % 0.015; 
+    outlier_ind = find(scatter_coeff < lowBound | scatter_coeff > upBound);
+    scatter_coeff(outlier_ind) = nan;
+end
+
 %% visualize 2D scattering coefficient map
 figure('Position',[500,120,1000,600])
-scatter(pc_x.*1e3,pc_y.*1e3,repmat(5,1,length(pc_x)),scatter_coeff,'filled')
-colormap(gca,'jet')
+scatter(pc_x.*1e3,pc_y.*1e3,repmat(1,1,length(pc_x)),scatter_coeff,'filled')
+colormap(gca,'parula') % jet
 cb = colorbar('Ticks',linspace(min(scatter_coeff),max(scatter_coeff),5));
 cb.Label.String = 'scattering coefficient '; cb.Label.FontSize = 14;
 xlabel('x [mm]'); ylabel('y [mm]');
 axis equal tight 
-axis off
+% axis off
