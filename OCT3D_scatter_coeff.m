@@ -6,7 +6,7 @@
 clc; clear; close all
 isGenVid = false;
 % load BScan & pose data
-data2load = 24;
+data2load = 23:25;
 [data, data_sizes] = DataManagerOCT(data2load); 
 
 %% extract first peak from AScan
@@ -75,9 +75,9 @@ figure('Position',[500,120,1000,600])
 scatter(pc_x*1e3,pc_y*1e3,ones(1,length(pc_x)),scatter_coeff,'filled')
 colormap(gca,'parula') % jet
 cb = colorbar('Ticks',linspace(min(scatter_coeff),max(scatter_coeff),4));
-cb.Label.String = 'scattering coefficient '; cb.Label.FontSize = 14;
+cb.Label.String = 'extinction coefficient [mm^{-1}]'; cb.Label.FontSize = 14;
 xlim([min(pc_x*1e3),max(pc_x*1e3)]);
 ylim([min(pc_y*1e3),max(pc_y*1e3)]);
 xlabel('x [mm]'); ylabel('y [mm]');
-axis equal
+axis equal tight
 % axis off
