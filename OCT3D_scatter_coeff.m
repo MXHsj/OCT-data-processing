@@ -6,17 +6,16 @@
 clc; clear; close all
 isGenVid = false;
 % load BScan & pose data
-data2load = 23:25;
+data2load = 24;
 [data, data_sizes] = DataManagerOCT(data2load); 
 
 %% extract first peak from AScan
 probe = ProbeConfigOCT(); % get OCT probe configuration
 enCalibTune = true;
-limRange = true;
 T_flange_probe_new = CompCalibErr(probe.T_flange_probe);
 
-pc_x = []; pc_y = []; pc_z = []; 
-scatter_coeff = [];     % single scattering model
+pc_x = []; pc_y = []; 
+scatter_coeff = []; % single scattering model
 
 dwnSmpInterv = 0.00;
 imgFiltThresh = 48;
@@ -42,13 +41,12 @@ for item = 1:size(data.OCT,3)
             T_base_flange = T/probe.T_flange_probe; % T*inv(probe.T_flange_probe)
             T = T_base_flange * T_flange_probe_new;
         end
-        [xglobal, yglobal, zglobal] = TransformPoints(T,xlocal,ylocal,zlocal);
+        [xglobal, yglobal, ~] = TransformPoints(T,xlocal,ylocal,zlocal);
         
         % downsample
         if dwnSmpInterv > 0
             xglobal = downsample(xglobal,ceil(dwnSmpInterv*length(xglobal)));
             yglobal = downsample(yglobal,ceil(dwnSmpInterv*length(yglobal)));
-            zglobal = downsample(zglobal,ceil(dwnSmpInterv*length(zglobal)));
             sc = downsample(sc, ceil(dwnSmpInterv*length(sc)));
         end
         
@@ -59,26 +57,27 @@ for item = 1:size(data.OCT,3)
         end
         pc_x = cat(2, pc_x, xglobal);
         pc_y = cat(2, pc_y, yglobal);
-        pc_z = cat(2, pc_z, zglobal);
         scatter_coeff = cat(2, scatter_coeff, sc(~isnan(sc)));
     end 
 end
-pc_x = single(pc_x); pc_y = single(pc_y); pc_z = single(pc_z);
+pc_x = single(pc_x); pc_y = single(pc_y); 
+scatter_coeff = single(scatter_coeff);
 fprintf('processing data takes %f sec \n', toc);
 
 %% limit scattering coeff value range
-if limRange
-    lowBound = 0; upBound = 6.5e-3; % 0.015; 
-    outlier_ind = find(scatter_coeff < lowBound | scatter_coeff > upBound);
-    scatter_coeff(outlier_ind) = nan;
-end
+lowBound = 0; % median(scatter_coeff) - std(scatter_coeff);
+upBound = mean(scatter_coeff) + 0.1*std(scatter_coeff);
+outlier_ind = find(scatter_coeff < lowBound | scatter_coeff > upBound);
+scatter_coeff(outlier_ind) = nan;
 
 %% visualize 2D scattering coefficient map
 figure('Position',[500,120,1000,600])
-scatter(pc_x.*1e3,pc_y.*1e3,repmat(1,1,length(pc_x)),scatter_coeff,'filled')
+scatter(pc_x*1e3,pc_y*1e3,ones(1,length(pc_x)),scatter_coeff,'filled')
 colormap(gca,'parula') % jet
-cb = colorbar('Ticks',linspace(min(scatter_coeff),max(scatter_coeff),5));
+cb = colorbar('Ticks',linspace(min(scatter_coeff),max(scatter_coeff),4));
 cb.Label.String = 'scattering coefficient '; cb.Label.FontSize = 14;
+xlim([min(pc_x*1e3),max(pc_x*1e3)]);
+ylim([min(pc_y*1e3),max(pc_y*1e3)]);
 xlabel('x [mm]'); ylabel('y [mm]');
-axis equal tight 
+axis equal
 % axis off
