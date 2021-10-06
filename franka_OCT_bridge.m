@@ -9,7 +9,7 @@ clc; clear; close all
 
 %% ----------------- ROS network -----------------
 rosshutdown
-setenv('ROS_MASTER_URI','http://130.215.223.132:11311') % ip of robot desktop
+setenv('ROS_MASTER_URI','http://130.215.12.8:11311') % ip of robot desktop
 % [~, local_ip] = system('ipconfig');
 setenv('ROS_IP','130.215.192.178')   % ip of this machine
 rosinit
@@ -35,13 +35,12 @@ last_surf_height = 0;
 % ---------------------------------------------------
 %% main loop
 % constant
-freq = 22;
+freq = 22;      % max: 22;
 rate = rateControl(freq);
 OCT_clk_ctrl = 0;
 isStartScan = false;                % robot start scanning flag
-queue_size = 3200;
+queue_size = 2800;
 store_img_height = 700;
-threshold = 56;
 data_count = 1;
 % pre-allocation
 BScan_bw = zeros(height,width,'logical');
@@ -51,7 +50,6 @@ pose_queue = zeros(4,4,queue_size,'double');
 
 while true
     tic;    
-%     curr_time = rate.TotalElapsedTime;
     % ----------------- receive from robot ----------------
     franka_pose_msg = receive(franka_pos_sub);
     franka_pose = reshape([franka_pose_msg.Data],4,4)';
@@ -69,27 +67,20 @@ while true
     
     % ----------------- get OCT image -----------------
     BScan = AcquireSingleBScan(Dev, RawData, Data, Proc);
-    % convert to binary image
-    BScan_bw(BScan(:,:) > threshold) = 1;
-    BScan_bw(BScan(:,:) <= threshold) = 0;
-    imagesc(BScan_bw)
-    % find target surface
-    surf_height = find(sum(BScan_bw,2) > 5, 1, 'first');
-    surf_height(isempty(surf_height)) = height;
-    % find slope
-    for i = 1:width
-        if sum(BScan_bw(:,i))>1
-            surf_row_ind(i) = find(BScan_bw(:,i) == 1,1,'first');
-        else
-            surf_row_ind(i) = nan;
-        end
-    end
-    surf_row_ind_valid = height - surf_row_ind(~isnan(surf_row_ind));
-    if length(surf_row_ind_valid) > 5
-        p = polyfit(1:length(surf_row_ind_valid),surf_row_ind_valid,1);
-    else
-        p = [0, height];
-    end
+    threshold = 0.82*max(BScan,[],'all');
+    % find surface
+    [val,ind] = max(BScan);
+    ind(val < threshold) = nan;
+    % fit line to surface using A = xB
+    xx = (1:length(ind))'; xx(isnan(ind)) = [];
+    x = [ones(length(ind(~isnan(ind))),1), xx];
+    B = x\(ind(~isnan(ind))');
+    
+    imagesc(BScan);
+    % plot surface contour
+%     plot(1:length(ind),ind,'.r','LineWidth',1)
+    % plot surface fitting
+%     plot(1:size(BScan,2),B(1)+B(2)*(1:size(BScan,2)),'-c','LineWidth',1);
     % -------------------------------------------------
     
     % ----------------- record OCT & pose data ----------------
@@ -105,8 +96,8 @@ while true
     % ---------------------------------------------------------
     
     % ----------------- send to robot ----------------
-    OCT_img_msg.Data(1) = 1-surf_height/height;       % surface height
-    OCT_img_msg.Data(2) = p(1);                       % in-plane slope
+    OCT_img_msg.Data(1) = 1-B(1)/height;       % surface height
+    OCT_img_msg.Data(2) = B(2);                % in-plane slope
 %     obj_slope = (last_franka_pose(3,4) - last_surf_height*0.01) - ...
 %                 (franka_pose(3,4) - surf_height*0.01);
 %     traj_slope = last_franka_pose(3,4) - franka_pose(3,4);
@@ -122,10 +113,12 @@ while true
 end
 
 %% save data
+tic;
 BScan2save = BScan_queue(:,:,1:data_count);
 pose2save = pose_queue(:,:,1:data_count);
-save(['../data/',date,'_BScan{exvivo5-1}.mat'],'BScan2save')
-save(['../data/',date,'_franka_pose{exvivo5-1}.mat'],'pose2save')
+save(['../data/',date,'_BScan{exvivo1}.mat'],'BScan2save')
+save(['../data/',date,'_franka_pose{exvivo1}.mat'],'pose2save')
+fprintf('save data took: %f sec\n', toc);
 
 %% finish
 UnloadSpectralRadar(Dev, RawData, Data, Proc, Probe, ScanPattern);
