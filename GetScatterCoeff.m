@@ -38,15 +38,16 @@ if isVisualize
     subplot(1,2,1)
     yyaxis left; 
     imagesc(BScan); 
-    ylabel('image height [row]')
+    ylabel('image height [pix]')
     yyaxis right; 
     plot(1:length(mu_s),mu_s,'o','MarkerSize',3.5); 
-    ylabel('scattering coefficient \mu_s [pix^{-1}]')
-    xlabel('image width [col]')
+    ylabel('scattering coefficient \mu_s [mm^{-1}]')
+    xlabel('image width [pix]')
+    ylim([mean(mu_s)-6*std(mu_s),mean(mu_s)+6*std(mu_s)])
     title('BScan')
     
     subplot(1,2,2)
-    AScan2plot = 30;
+    AScan2plot = 800;
     plot((BScan(:,AScan2plot)), (1:length(BScan(:,AScan2plot)))*res); 
     hold on
     [~, peak_ind] = max(BScan(:,AScan2plot));

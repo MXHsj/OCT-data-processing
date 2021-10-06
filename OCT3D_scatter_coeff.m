@@ -6,7 +6,7 @@
 clc; clear; close all
 isGenVid = false;
 % load BScan & pose data
-data2load = 23:25;
+data2load = 24;
 [data, data_sizes] = DataManagerOCT(data2load); 
 
 %% extract first peak from AScan
@@ -24,8 +24,7 @@ for item = 1:size(data.OCT,3)
     fprintf('process %dth image ... \n', item);
     BScan = data.OCT(:,:,item);
     % get scattering coefficient
-    [sc, ~] = GetScatterCoeff(BScan, imgFiltThresh, 0);   
-    % TODO: only find peak once
+    [sc, ~] = GetScatterCoeff(BScan, imgFiltThresh, 0);
     % find highest peak in each AScan
     [maxAScan, row] = max(BScan(:,~isnan(sc)));
     col = find(maxAScan > imgFiltThresh);
@@ -42,14 +41,12 @@ for item = 1:size(data.OCT,3)
             T = T_base_flange * T_flange_probe_new;
         end
         [xglobal, yglobal, ~] = TransformPoints(T,xlocal,ylocal,zlocal);
-        
         % downsample
         if dwnSmpInterv > 0
             xglobal = downsample(xglobal,ceil(dwnSmpInterv*length(xglobal)));
             yglobal = downsample(yglobal,ceil(dwnSmpInterv*length(yglobal)));
             sc = downsample(sc, ceil(dwnSmpInterv*length(sc)));
         end
-        
         % append
         if length(sc(~isnan(sc))) ~= length(xglobal)
             disp('size discrepency')
@@ -60,7 +57,7 @@ for item = 1:size(data.OCT,3)
         scatter_coeff = cat(2, scatter_coeff, sc(~isnan(sc)));
     end 
 end
-pc_x = single(pc_x); pc_y = single(pc_y); 
+pc_x = single(pc_x); pc_y = single(pc_y);
 scatter_coeff = single(scatter_coeff);
 fprintf('processing data takes %f sec \n', toc);
 
