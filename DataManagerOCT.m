@@ -9,13 +9,13 @@ data_folder = '../data/';
 oct_data = ...
 {
     '08-Sep-2021_BScan{breadboard}.mat', ...        % 1
-    '10-Sep-2021_BScan{cuboid1}.mat', ...           % 2
+    '10-Sep-2021_BScan{cuboid1}.mat', ...           % 2     w/ 4 holes
     '10-Sep-2021_BScan{cuboid2}.mat', ...           % 3
     '10-Sep-2021_BScan{cuboid3}.mat', ...           % 4
     '10-Sep-2021_BScan{cuboid4}.mat', ...           % 5
     '10-Sep-2021_BScan{cuboid5}.mat', ...           % 6
     '10-Sep-2021_BScan{cuboid6}.mat', ...           % 7
-    '15-Sep-2021_BScan{letters1}.mat', ...          % 8
+    '15-Sep-2021_BScan{letters1}.mat', ...          % 8     WPI-UMASS
     '15-Sep-2021_BScan{letters2}.mat', ...          % 9
     '15-Sep-2021_BScan{letters3}.mat', ...          % 10
     '16-Sep-2021_BScan{exvivo1}.mat', ...           % 11    sliced kidney
@@ -34,6 +34,13 @@ oct_data = ...
     '28-Sep-2021_BScan{exvivo3}.mat', ...           % 24
     '28-Sep-2021_BScan{exvivo4}.mat', ...           % 25
     '28-Sep-2021_BScan{exvivo5}.mat', ...           % 26
+    '07-Oct-2021_BScan{breast1}.mat', ...           % 27    breast phantom
+    '07-Oct-2021_BScan{breast2}.mat', ...           % 28
+    '07-Oct-2021_BScan{breast3}.mat', ...           % 29
+    '07-Oct-2021_BScan{breast4}.mat', ...           % 30
+    '07-Oct-2021_BScan{breast5}.mat', ...           % 31
+    '07-Oct-2021_BScan{breast6}.mat', ...           % 32
+    '07-Oct-2021_BScan{breast7}.mat', ...           % 33
 };
 
 pose_data = ...
@@ -64,6 +71,13 @@ pose_data = ...
     '28-Sep-2021_franka_pose{exvivo3}.mat', ...     % 24
     '28-Sep-2021_franka_pose{exvivo4}.mat', ...     % 25
     '28-Sep-2021_franka_pose{exvivo5}.mat', ...     % 26
+    '07-Oct-2021_franka_pose{breast1}.mat', ...     % 27    breast phantom
+    '07-Oct-2021_franka_pose{breast2}.mat', ...     % 28
+    '07-Oct-2021_franka_pose{breast3}.mat', ...     % 29
+    '07-Oct-2021_franka_pose{breast4}.mat', ...     % 30
+    '07-Oct-2021_franka_pose{breast5}.mat', ...     % 31
+    '07-Oct-2021_franka_pose{breast6}.mat', ...     % 32
+    '07-Oct-2021_franka_pose{breast7}.mat', ...     % 33
 };
 
 fprintf('loading %s ... \n',oct_data{data_id});

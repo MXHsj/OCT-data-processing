@@ -6,7 +6,7 @@
 clc; clear; close all
 isGenVid = false;
 % load BScan & pose data
-data2load = 22:26;
+data2load = 28:33;
 [data, data_sizes] = DataManagerOCT(data2load); 
 
 %% extract first peak from AScan
@@ -72,7 +72,7 @@ fprintf('processing data took %f sec \n', toc);
 
 %% visualize 2D depth encoding
 figure('Position',[500,120,1000,600])
-scatter(pc_x.*1e3,pc_y.*1e3,repmat(5,1,length(pc_x)),pc_z.*1e3,'filled')
+scatter(pc_x.*1e3,pc_y.*1e3,repmat(4,1,length(pc_x)),pc_z.*1e3,'filled')
 colormap(gca,'jet')
 cb = colorbar('Ticks',linspace(min(pc_z.*1e3),max(pc_z.*1e3),5));
 cb.Label.String = 'depth [mm]'; cb.Label.FontSize = 14;
@@ -95,8 +95,8 @@ axis equal tight
 % make background white
 set(gcf,'color','w'); 
 set(gca,'color','w','XColor',[0.15 0.15 0.15],'YColor',[0.15 0.15 0.15],'ZColor',[0.15 0.15 0.15]);
-% view(-90,0)     
-view(0,90)
+view(-90,0)     
+% view(0,90)
 % plot robot trajectory
 hold on
 position = reshape(data.pose(1:3,end,:),3,[]).*1e3;
