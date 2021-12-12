@@ -9,7 +9,7 @@ clc; clear; close all
 
 %% ----------------- ROS network -----------------
 rosshutdown
-ros_master_uri = 'http://130.215.209.225:11311';
+ros_master_uri = 'http://130.215.211.193:11311';
 % [~, local_ip] = system('ipconfig');
 local_ip = '130.215.192.168';
 setenv('ROS_MASTER_URI',ros_master_uri) % ip of robot desktop
@@ -41,16 +41,17 @@ rate = rateControl(freq);
 global OCT_scan_flag
 OCT_scan_flag = 0;
 isStartScan = false;                % robot start scanning flag
-queue_size = 2500;
-intensity_thresh = 55;              % threshold above which will be considered as tissue
+queue_size = 2600;
+% empirical values: WPI-UMASS->70; breast->58; kidney->52
+intensity_thresh = 60; % threshold above which will be considered as tissue
 rms_err_thresh = 0.035*height;
 store_img_height = 700;
 % counters
 global frm_count scan_count
 frm_count = 1; scan_count = 1;
 % pre-allocation
-BScan_bw = zeros(height,width,'logical');
-surf_row_ind = zeros(1,width);
+% BScan_bw = zeros(height,width,'logical');
+% surf_row_ind = zeros(1,width);
 global BScan_queue pose_queue
 BScan_queue = zeros(store_img_height,width,queue_size,'uint8');   % use uint8 to save space
 pose_queue = zeros(4,4,queue_size,'double');
@@ -142,5 +143,5 @@ BScan2save = BScan_queue(:,:,1:frm_count);
 pose2save = pose_queue(:,:,1:frm_count);
 save(['../data/',date,'_BScan{',name,num2str(scan_count),'}.mat'],'BScan2save')
 save(['../data/',date,'_franka_pose{',name,num2str(scan_count),'}.mat'],'pose2save')
-fprintf('save data took: %f sec\n', toc);
+fprintf('scan: %d, frm: %d, save data took: %f sec\n', scan_count, frm_count, toc);
 end
