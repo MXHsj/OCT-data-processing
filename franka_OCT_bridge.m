@@ -89,7 +89,7 @@ while true
     
     imagesc(BScan);
     % plot surface contour
-%     plot(1:length(ind),ind,'.r','LineWidth',1);
+%     plot(1:length(ind),ind,'.r','MarkerSize',1.0);
     % plot surface fitting
 %     plot(1:size(BScan,2),B(1)+B(2)*(1:size(BScan,2)),'-c','LineWidth',1);
     % -------------------------------------------------

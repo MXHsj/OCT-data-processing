@@ -6,7 +6,7 @@
 clc; clear; close all
 isGenVid = false;
 % load BScan & pose data
-data2load = 28:33;
+data2load = 34:36;
 [data, data_sizes] = DataManagerOCT(data2load); 
 
 %% extract first peak from AScan

@@ -3,11 +3,11 @@
 % author: Xihan Ma
 % description: extract first peak from each AScan & generate 2D depth map
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-clc; clear; close all
+% clc; clear; close all
 isGenVid = false;
 % load BScan & pose data
-data2load = 28:33;
-[data, data_sizes] = DataManagerOCT(data2load); 
+data2load = 22:26;
+[data, data_sizes] = DataManagerOCT(data2load);
 
 %% extract first peak from AScan
 probe = ProbeConfigOCT(); % get OCT probe configuration
@@ -18,7 +18,7 @@ pc_x = []; pc_y = []; pc_z = [];
 pc_x_int = []; pc_y_int = []; pc_z_int = [];        % intensity
 
 dwnSmpInterv = 0.011;
-imgFiltThresh = 47.5;
+imgFiltThresh = 47.5; % 47.5;
 tic;
 for item = 1:size(data.OCT,3)
     fprintf('process %dth image ... \n', item);
@@ -32,7 +32,7 @@ for item = 1:size(data.OCT,3)
     if ~isempty(row) && ~isempty(col)
         xlocal = zeros(1,length(row));
         ylocal = -(probe.y/probe.width).*(col-1) + probe.y/2;
-        zlocal = (probe.z/probe.height).*(row-1);
+        zlocal = (probe.z/probe.height).*(row-1); 
 
         xint = zeros(1,length(row),'uint8');
         yint = zeros(1,length(row),'uint8');
@@ -70,6 +70,17 @@ end
 pc_x = single(pc_x); pc_y = single(pc_y); pc_z = single(pc_z);
 fprintf('processing data took %f sec \n', toc);
 
+%% crop data
+x_range = [440, 546]; y_range = [-27, 1];       % [mm]
+x2remove = pc_x.*1e3 < x_range(1) | pc_x.*1e3 > x_range(2);
+y2remove = pc_y.*1e3 < y_range(1) | pc_y.*1e3 > y_range(2);
+pc_x(x2remove|y2remove) = [];
+pc_y(x2remove|y2remove) = [];
+pc_z(x2remove|y2remove) = [];
+pc_x_int(x2remove|y2remove) = [];
+pc_y_int(x2remove|y2remove) = [];
+pc_z_int(x2remove|y2remove) = [];
+
 %% visualize 2D depth encoding
 figure('Position',[500,120,1000,600])
 scatter(pc_x.*1e3,pc_y.*1e3,repmat(4,1,length(pc_x)),pc_z.*1e3,'filled')
@@ -81,23 +92,24 @@ axis equal tight
 % axis off
 
 %% generate pointcloud
+figure('Position',[500,100,1200,600])
 pc_xyz = [pc_x.*1e3; pc_y.*1e3; pc_z.*1e3]';
 pc_int = [pc_x_int; pc_y_int; pc_z_int]';       % intensity
 pntcloud = pointCloud(pc_xyz,'Color',pc_int);
 pntcloud = pcdenoise(pntcloud);                 % denoise
 pntcloud = pcdownsample(pntcloud,'random',0.9);
-% visualize pointcloud
-figure('Position',[500,100,1200,600])
+% ================ visualize pointcloud ================
 pcshow(pntcloud,'MarkerSize',4)
 xlabel('x [mm]'); ylabel('y [mm]'); zlabel('z [mm]')
-axis equal tight 
+axis equal tight
 % axis off
 % make background white
 set(gcf,'color','w'); 
 set(gca,'color','w','XColor',[0.15 0.15 0.15],'YColor',[0.15 0.15 0.15],'ZColor',[0.15 0.15 0.15]);
-view(-90,0)     
-% view(0,90)
-% plot robot trajectory
+view(0,0)        % look at x-z plane
+% view(90,0)       % look at y-z plane
+% view(0,90)       % look at x-y plane 
+% ================ plot robot trajectory ================
 hold on
 position = reshape(data.pose(1:3,end,:),3,[]).*1e3;
 position(:,position(1,:)==0&position(2,:)==0&position(1,:)==0) = [];

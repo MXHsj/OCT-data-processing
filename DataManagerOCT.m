@@ -34,13 +34,32 @@ oct_data = ...
     '28-Sep-2021_BScan{exvivo3}.mat', ...           % 24
     '28-Sep-2021_BScan{exvivo4}.mat', ...           % 25
     '28-Sep-2021_BScan{exvivo5}.mat', ...           % 26
-    '07-Oct-2021_BScan{breast1}.mat', ...           % 27    breast phantom
-    '07-Oct-2021_BScan{breast2}.mat', ...           % 28
-    '07-Oct-2021_BScan{breast3}.mat', ...           % 29
-    '07-Oct-2021_BScan{breast4}.mat', ...           % 30
-    '07-Oct-2021_BScan{breast5}.mat', ...           % 31
-    '07-Oct-2021_BScan{breast6}.mat', ...           % 32
-    '07-Oct-2021_BScan{breast7}.mat', ...           % 33
+    '08-Dec-2021_BScan{letters1}.mat', ...          % 27    WPI-UMASS
+    '08-Dec-2021_BScan{letters2}.mat', ...          % 28
+    '08-Dec-2021_BScan{letters3}.mat', ...          % 29
+    '08-Dec-2021_BScan{breast1}.mat', ...           % 30    breast w/ rot
+    '08-Dec-2021_BScan{breast2}.mat', ...           % 31    
+    '08-Dec-2021_BScan{breast3}.mat', ...           % 32    
+    '08-Dec-2021_BScan{breast4}.mat', ...           % 33   
+    '08-Dec-2021_BScan{breast5}.mat', ...           % 34  
+    '08-Dec-2021_BScan{breast6}.mat', ...           % 35  
+    '08-Dec-2021_BScan{breast7}.mat', ...           % 36  
+    '11-Dec-2021_BScan{breast1}.mat', ...           % 37    breast w/ rot
+    '11-Dec-2021_BScan{breast2}.mat', ...           % 38    
+    '11-Dec-2021_BScan{breast3}.mat', ...           % 39
+    '11-Dec-2021_BScan{letters1}.mat', ...          % 40    WPI-UMASS on slope
+    '11-Dec-2021_BScan{letters2}.mat', ...          % 41
+    '11-Dec-2021_BScan{letters3}.mat', ...          % 42
+    '11-Dec-2021_BScan{letters4}.mat', ...          % 43
+    '11-Dec-2021_BScan{letters5}.mat', ...          % 44
+    '10-Dec-2021_BScan{slope1}.mat', ...            % 45    flat slope
+    '10-Dec-2021_BScan{slope2}.mat', ...            % 46
+    '10-Dec-2021_BScan{slope3}.mat', ...            % 47
+    '13-Dec-2021_BScan{slope4}.mat', ...            % 48
+    '13-Dec-2021_BScan{breast1}.mat', ...           % 49    breast w/ rot on-cart
+    '13-Dec-2021_BScan{breast2}.mat', ...           % 50
+    '13-Dec-2021_BScan{breast3}.mat', ...           % 51
+    '13-Dec-2021_BScan{breast4}.mat', ...           % 52
 };
 
 pose_data = ...
@@ -71,13 +90,32 @@ pose_data = ...
     '28-Sep-2021_franka_pose{exvivo3}.mat', ...     % 24
     '28-Sep-2021_franka_pose{exvivo4}.mat', ...     % 25
     '28-Sep-2021_franka_pose{exvivo5}.mat', ...     % 26
-    '07-Oct-2021_franka_pose{breast1}.mat', ...     % 27    breast phantom
-    '07-Oct-2021_franka_pose{breast2}.mat', ...     % 28
-    '07-Oct-2021_franka_pose{breast3}.mat', ...     % 29
-    '07-Oct-2021_franka_pose{breast4}.mat', ...     % 30
-    '07-Oct-2021_franka_pose{breast5}.mat', ...     % 31
-    '07-Oct-2021_franka_pose{breast6}.mat', ...     % 32
-    '07-Oct-2021_franka_pose{breast7}.mat', ...     % 33
+    '08-Dec-2021_franka_pose{letters1}.mat', ...    % 27    WPI-UMASS
+    '08-Dec-2021_franka_pose{letters2}.mat', ...    % 28
+    '08-Dec-2021_franka_pose{letters3}.mat', ...    % 29
+    '08-Dec-2021_franka_pose{breast1}.mat', ...     % 30    breast w/ rot
+    '08-Dec-2021_franka_pose{breast2}.mat', ...     % 31    
+    '08-Dec-2021_franka_pose{breast3}.mat', ...     % 32    
+    '08-Dec-2021_franka_pose{breast4}.mat', ...     % 33   
+    '08-Dec-2021_franka_pose{breast5}.mat', ...     % 34  
+    '08-Dec-2021_franka_pose{breast6}.mat', ...     % 35   
+    '08-Dec-2021_franka_pose{breast7}.mat', ...     % 36
+    '11-Dec-2021_franka_pose{breast1}.mat', ...     % 37    breast w/ rot
+    '11-Dec-2021_franka_pose{breast2}.mat', ...     % 38    
+    '11-Dec-2021_franka_pose{breast3}.mat', ...     % 39
+    '11-Dec-2021_franka_pose{letters1}.mat', ...    % 40    WPI-UMASS on slope
+    '11-Dec-2021_franka_pose{letters2}.mat', ...    % 41
+    '11-Dec-2021_franka_pose{letters3}.mat', ...    % 42
+    '11-Dec-2021_franka_pose{letters4}.mat', ...    % 43
+    '11-Dec-2021_franka_pose{letters5}.mat', ...    % 44
+    '10-Dec-2021_franka_pose{slope1}.mat', ...      % 45    flat slope
+    '10-Dec-2021_franka_pose{slope2}.mat', ...      % 46
+    '10-Dec-2021_franka_pose{slope3}.mat', ...      % 47
+    '13-Dec-2021_franka_pose{slope4}.mat', ...      % 48
+    '13-Dec-2021_franka_pose{breast1}.mat', ...     % 49    breast w/o rot on-cart
+    '13-Dec-2021_franka_pose{breast2}.mat', ...     % 50
+    '13-Dec-2021_franka_pose{breast3}.mat', ...     % 51
+    '13-Dec-2021_franka_pose{breast4}.mat', ...     % 52
 };
 
 fprintf('loading %s ... \n',oct_data{data_id});
