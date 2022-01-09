@@ -60,6 +60,9 @@ oct_data = ...
     '13-Dec-2021_BScan{breast2}.mat', ...           % 50
     '13-Dec-2021_BScan{breast3}.mat', ...           % 51
     '13-Dec-2021_BScan{breast4}.mat', ...           % 52
+    '08-Jan-2022_BScan{sliced1}.mat', ...           % 53    sliced kidney
+    '08-Jan-2022_BScan{sliced2}.mat', ...           % 54
+    '08-Jan-2022_BScan{sliced3}.mat', ...           % 55
 };
 
 pose_data = ...
@@ -116,6 +119,9 @@ pose_data = ...
     '13-Dec-2021_franka_pose{breast2}.mat', ...     % 50
     '13-Dec-2021_franka_pose{breast3}.mat', ...     % 51
     '13-Dec-2021_franka_pose{breast4}.mat', ...     % 52
+    '08-Jan-2022_franka_pose{sliced1}.mat', ...     % 53    sliced kidney
+    '08-Jan-2022_franka_pose{sliced2}.mat', ...     % 54
+    '08-Jan-2022_franka_pose{sliced3}.mat', ...     % 55
 };
 
 fprintf('loading %s ... \n',oct_data{data_id});

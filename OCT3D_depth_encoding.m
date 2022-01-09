@@ -18,7 +18,7 @@ pc_x = []; pc_y = []; pc_z = [];
 pc_x_int = []; pc_y_int = []; pc_z_int = [];        % intensity
 
 dwnSmpInterv = 0.011;
-imgFiltThresh = 47.5; % 47.5;
+imgFiltThresh = 48.5; % 47.5;
 tic;
 for item = 1:size(data.OCT,3)
     fprintf('process %dth image ... \n', item);
@@ -89,6 +89,8 @@ cb = colorbar('Ticks',linspace(min(pc_z.*1e3),max(pc_z.*1e3),5));
 cb.Label.String = 'depth [mm]'; cb.Label.FontSize = 14;
 xlabel('x [mm]'); ylabel('y [mm]');
 axis equal tight 
+clim = caxis;
+caxis([clim(1) clim(2)])
 % axis off
 
 %% generate pointcloud
