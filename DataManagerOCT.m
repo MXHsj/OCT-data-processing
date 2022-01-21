@@ -63,6 +63,11 @@ oct_data = ...
     '08-Jan-2022_BScan{sliced1}.mat', ...           % 53    sliced kidney
     '08-Jan-2022_BScan{sliced2}.mat', ...           % 54
     '08-Jan-2022_BScan{sliced3}.mat', ...           % 55
+    '12-Jan-2022_BScan{sliced1}.mat', ...           % 56    large sliced kidney
+    '12-Jan-2022_BScan{sliced2}.mat', ...           % 57
+    '12-Jan-2022_BScan{sliced3}.mat', ...           % 58
+    '12-Jan-2022_BScan{sliced4}.mat', ...           % 59
+    '12-Jan-2022_BScan{sliced5}.mat', ...           % 60
 };
 
 pose_data = ...
@@ -122,6 +127,11 @@ pose_data = ...
     '08-Jan-2022_franka_pose{sliced1}.mat', ...     % 53    sliced kidney
     '08-Jan-2022_franka_pose{sliced2}.mat', ...     % 54
     '08-Jan-2022_franka_pose{sliced3}.mat', ...     % 55
+    '12-Jan-2022_franka_pose{sliced1}.mat', ...     % 56    large sliced kidney
+    '12-Jan-2022_franka_pose{sliced2}.mat', ...     % 57
+    '12-Jan-2022_franka_pose{sliced3}.mat', ...     % 58
+    '12-Jan-2022_franka_pose{sliced4}.mat', ...     % 59
+    '12-Jan-2022_franka_pose{sliced5}.mat', ...     % 60
 };
 
 fprintf('loading %s ... \n',oct_data{data_id});

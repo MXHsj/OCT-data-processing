@@ -1,15 +1,14 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% file name: OCT3D_scatter_coeff.m
+% file name: OCT3D_extinction_coeff.m
 % author: Xihan Ma
-% description: get scattering coefficient from A-scans & generate 2D map
+% description: get extinction coefficient from A-scans & generate 2D map
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-clc; clear; close all
-isGenVid = false;
+% clc; clear; close all
 % load BScan & pose data
-data2load = 53:54;
+data2load = 53:55;
 [data, data_sizes] = DataManagerOCT(data2load); 
 
-%% extract first peak from AScan
+%% extract extinction coefficient
 probe = ProbeConfigOCT(); % get OCT probe configuration
 enCalibTune = true;
 T_flange_probe_new = CompCalibErr(probe.T_flange_probe);
@@ -18,16 +17,16 @@ pc_x = []; pc_y = [];
 ext_coeff = []; % single scattering model
 
 dwnSmpInterv = 0.00;
-imgFiltThresh = 48;
-isVisualize = false;
+imgFiltThresh = 40;  % 48
+isVisualize = true;
 tic;
-for item = 1500 %1:size(data.OCT,3)
+for item =  4200 % 1:size(data.OCT,3)
     fprintf('process %dth image ... \n', item);
     BScan = data.OCT(:,:,item);
-    % get scattering coefficient
-    [sc, ~] = GetExtCoeff(BScan, imgFiltThresh, isVisualize);
+    % get extinction coefficient
+    [ec, ~] = GetExtCoeff(BScan, imgFiltThresh, isVisualize);
     % find highest peak in each AScan
-    [maxAScan, row] = max(BScan(:,~isnan(sc)));
+    [maxAScan, row] = max(BScan(:,~isnan(ec)));
     col = find(maxAScan > imgFiltThresh);
     row = row(col);
     if ~isempty(row) && ~isempty(col)
@@ -46,37 +45,57 @@ for item = 1500 %1:size(data.OCT,3)
         if dwnSmpInterv > 0
             xglobal = downsample(xglobal,ceil(dwnSmpInterv*length(xglobal)));
             yglobal = downsample(yglobal,ceil(dwnSmpInterv*length(yglobal)));
-            sc = downsample(sc, ceil(dwnSmpInterv*length(sc)));
+            ec = downsample(ec, ceil(dwnSmpInterv*length(ec)));
         end
         % append
-        if length(sc(~isnan(sc))) ~= length(xglobal)
-            disp('size discrepency')
+        if length(ec(~isnan(ec))) ~= length(xglobal)
+            disp('size discrepency: number of extracted coefficient less than number of points')
             break
         end
         pc_x = cat(2, pc_x, xglobal);
         pc_y = cat(2, pc_y, yglobal);
-        ext_coeff = cat(2, ext_coeff, sc(~isnan(sc)));
+        ext_coeff = cat(2, ext_coeff, ec(~isnan(ec)));
     end 
-    if isVisualize
-        input('press enter to continue');
-%         close all
-    end
 end
 pc_x = single(pc_x); pc_y = single(pc_y);
 ext_coeff = single(ext_coeff);
 fprintf('processing data takes %f sec \n', toc);
 
-%% limit scattering coeff value range
-lowBound = 0; % median(scatter_coeff) - std(scatter_coeff);
-upBound = mean(ext_coeff) + 1.2*std(ext_coeff);
+%% crop scan area
+x_preserve = [508, 550]; y_preserve = [-28, -7];       % [mm] area to preserve
+x2remove = pc_x.*1e3 < x_preserve(1) | pc_x.*1e3 > x_preserve(end);
+y2remove = pc_y.*1e3 < y_preserve(1) | pc_y.*1e3 > y_preserve(end);
+pc_x(x2remove|y2remove) = [];
+pc_y(x2remove|y2remove) = [];
+ext_coeff(x2remove|y2remove) = [];
+
+%% limit extinction coeff value range
+lowBound = 0; % median(scatter_coeff) - 1.0*std(scatter_coeff);
+upBound = mean(ext_coeff) + 2.0*std(ext_coeff);
 outlier_ind = find(ext_coeff < lowBound | ext_coeff > upBound);
 ext_coeff(outlier_ind) = nan;
 
+%% TODO: project pcd to occupancy grid
+map = zeros(1024, 2000, 'single');
+res_x = size(map,2)/(max(pc_x)-min(pc_x));
+res_y = size(map,1)/(max(pc_y)-min(pc_y));
+tic
+for i = 1:length(pc_x)
+    x_ind = round(pc_x(i)*res_x - min(pc_x)*res_x) + 1;
+    y_ind = round(pc_y(i)*res_y - min(pc_y)*res_y) + 1;
+    map(y_ind, x_ind) = ext_coeff(i);
+%     fprintf('processing map(%d, %d) (%d/%d)\n',x_ind,y_ind,i,length(ext_coeff))
+end
+toc
+map = flipud(map);
+figure('Position',[500,120,1000,600])
+imagesc(map)
+
 %% visualize 2D extinction coefficient map
 figure('Position',[500,120,1000,600])
-scatter(pc_x*1e3,pc_y*1e3,ones(1,length(pc_x)),ext_coeff,'filled')
-colormap(gca,'parula') % jet
-cb = colorbar('Ticks',linspace(min(ext_coeff),max(ext_coeff),4));
+scatter(pc_x*1e3,pc_y*1e3,ones(1,length(pc_x)),ext_coeff*1.4,'filled')
+colormap(gca,'parula') % parula jet gray
+cb = colorbar('Ticks',linspace(min(ext_coeff),max(ext_coeff),5));
 cb.Label.String = 'extinction coefficient [mm^{-1}]'; cb.Label.FontSize = 14;
 xlim([min(pc_x*1e3),max(pc_x*1e3)]);
 ylim([min(pc_y*1e3),max(pc_y*1e3)]);

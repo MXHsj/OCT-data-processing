@@ -124,7 +124,7 @@ xlabel('x [mm]'); ylabel('y [mm]'); zlabel('z [mm]')
 axis equal tight 
 axis off
 % make background white
-set(gcf,'color','w'); 
+set(gcf,'color','w');
 set(gca,'color','w','XColor',[0.15 0.15 0.15],'YColor',[0.15 0.15 0.15],'ZColor',[0.15 0.15 0.15]);
 view(0,54)
 % plot robot trajectory

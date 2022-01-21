@@ -3,10 +3,9 @@
 % author: Xihan Ma
 % description: extract first peak from each AScan & generate 2D depth map
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% clc; clear; close all
-isGenVid = false;
+clc; clear; close all
 % load BScan & pose data
-data2load = 22:26;
+data2load = 53:55;
 [data, data_sizes] = DataManagerOCT(data2load);
 
 %% extract first peak from AScan
@@ -70,10 +69,10 @@ end
 pc_x = single(pc_x); pc_y = single(pc_y); pc_z = single(pc_z);
 fprintf('processing data took %f sec \n', toc);
 
-%% crop data
-x_range = [440, 546]; y_range = [-27, 1];       % [mm]
-x2remove = pc_x.*1e3 < x_range(1) | pc_x.*1e3 > x_range(2);
-y2remove = pc_y.*1e3 < y_range(1) | pc_y.*1e3 > y_range(2);
+%% crop scan area
+x_preserve = [508, 550]; y_preserve = [-28, -7];       % [mm]
+x2remove = pc_x.*1e3 < x_preserve(1) | pc_x.*1e3 > x_preserve(2);
+y2remove = pc_y.*1e3 < y_preserve(1) | pc_y.*1e3 > y_preserve(2);
 pc_x(x2remove|y2remove) = [];
 pc_y(x2remove|y2remove) = [];
 pc_z(x2remove|y2remove) = [];
