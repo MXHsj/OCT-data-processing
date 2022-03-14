@@ -152,7 +152,8 @@ for id = data_id
     end
     data.OCT = cat(3,data.OCT,data_tmp.OCT);
     data.pose = cat(3,data.pose,data_tmp.pose);
-    sizes = cat(1,sizes,sizes(end)+size(data_tmp.OCT,3));
+%     sizes = cat(1,sizes,sizes(end)+size(data_tmp.OCT,3));
+    sizes = cat(1,sizes,size(data_tmp.OCT,3));
 end
 sizes(1) = [];
 fprintf('read data took %f sec\n',toc);

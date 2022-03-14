@@ -5,7 +5,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clc; clear; close all
 % load BScan & pose data
-data2load = 53:55;
+data2load = 8:10;
 [data, data_sizes] = DataManagerOCT(data2load);
 
 %% extract first peak from AScan

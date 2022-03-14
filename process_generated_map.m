@@ -41,7 +41,6 @@ imagesc(map_final);
 cb = colorbar();
 cb.Label.String = 'extinction coefficient [mm^{-1}]'; cb.Label.FontSize = 14;
 
-    
 %% smoothing image
 function [map_filtered] = smooth_map(map_raw)
     map_raw(isnan(map_raw))=0;

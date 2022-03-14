@@ -51,13 +51,13 @@ elseif filter_id == 3
 elseif filter_id == 4
     % test built-in image processing API
 %     BScan = imsharpen(BScan,'Radius',2.0,'Amount',0.5,'Threshold',0.55);
-    BScan = adapthisteq(BScan);
-    BScan = localcontrast(BScan);
+%     BScan = adapthisteq(BScan);
+%     BScan = localcontrast(BScan);
 %     sigma = 0.2;
 %     alpha = 5.0;
 %     BScan_filtered = locallapfilt(BScan, sigma, alpha);
-    BScan = imfilter(double(BScan),[100, 100],'conv','same');
+    BScan = imfilter(double(BScan),[10, 10],'conv','same');
     BScan_norm = normalize(BScan, 'range', [0 1]);
-    BScan_filtered = imadjust(BScan_norm,[0.5 0.9],[]);
+    BScan_filtered = imadjust(BScan_norm,[0.3 0.9],[]);
 end
 
