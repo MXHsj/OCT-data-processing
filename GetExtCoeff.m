@@ -13,9 +13,9 @@ end
 probe = ProbeConfigOCT(BScan);
 res = probe.vert_res*1e3;   % change unit to [mm]
 mu_s = zeros(1,size(BScan,2)); amp = zeros(1,size(BScan,2));
-window = 220;
-% BScan = FilterRawBScan(BScan,1);
+window = 200;   % 220
 % ====================== fast ver. =======================
+% BScan = FilterRawBScan(BScan,1);
 for col = 1:size(BScan,2)
     AScan = BScan(:,col);
     [peak_val, peak_ind] = max(AScan(AScan~=max(AScan)));   % find second peak for robustness
@@ -37,9 +37,11 @@ end
 % visualization
 if isVisualize
     f = figure('Position',[1920/6,1080/5,1.5*size(BScan,2),0.5*size(BScan,1)]);
+    % plot B-mode
     subplot(1,2,1)
     yyaxis left; 
-    imagesc(FilterRawBScan(BScan,4)); colormap gray
+    imagesc(BScan); colormap gray
+%     imagesc(FilterRawBScan(BScan,4)); colormap gray
     ylabel('image height [pix]')
     yyaxis right; 
     plot(1:length(mu_s),mu_s,'x','MarkerSize',3.3); 
@@ -49,7 +51,7 @@ if isVisualize
         ylim([mean(mu_s,'omitnan')-6*std(mu_s,'omitnan'),mean(mu_s,'omitnan')+6*std(mu_s,'omitnan')])
     end
     title('BScan')
-    
+    % plot A-mode
     subplot(1,2,2)
     AScan2plot = 1024/2;
     plot((BScan(:,AScan2plot)), (1:length(BScan(:,AScan2plot)))*res, 'LineWidth',1.3); 
