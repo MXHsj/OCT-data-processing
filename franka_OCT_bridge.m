@@ -35,17 +35,17 @@ OCT_response_msg.Data = [height, 0.0, isDataSaved];
 %% main loop
 % constant
 clear BScan_queue pose_queue
-sample_name = 'breast';
+sample_name = 'sliced';
 freq = 20;      % max: 22; default: 20
 rate = rateControl(freq);
 global OCT_scan_flag
 OCT_scan_flag = 0;
 isStartScan = false;                % robot start scanning flag
-queue_size = 2600;
+queue_size = 2400;
 % empirical values: WPI-UMASS->70; breast->58; kidney->52
-intensity_thresh = 60; % threshold above which will be considered as tissue
+intensity_thresh = 54; % threshold above which will be considered as tissue
 rms_err_thresh = 0.035*height;
-store_img_height = 700;
+store_img_height = 1024;    % 700
 % counters
 global frm_count scan_count
 frm_count = 1; scan_count = 1;
@@ -59,8 +59,8 @@ pose_queue = zeros(4,4,queue_size,'double');
 while true
     tic;    
     % ----------------- receive from robot ----------------
-    franka_pose_msg = receive(franka_pos_sub);
-    franka_pose = reshape([franka_pose_msg.Data],4,4)';
+%     franka_pose_msg = receive(franka_pos_sub);
+%     franka_pose = reshape([franka_pose_msg.Data],4,4)';
     if OCT_scan_flag == 1 && isStartScan == false
         isStartScan = true;
         isDataSaved = 0;
@@ -119,7 +119,7 @@ while true
     end
     OCT_response_msg.Data(3) = isDataSaved;
     % send message
-    send(OCT_response_pub, OCT_response_msg)
+%     send(OCT_response_pub, OCT_response_msg)
     % ------------------------------------------------
     waitfor(rate);
 %     fprintf('loop time: %f, isStartScan: %d\n', toc, isStartScan);
