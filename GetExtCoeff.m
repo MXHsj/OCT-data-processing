@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% file name: GetScatterCoef.m
+% file name: GetExtCoef.m
 % author: Xihan Ma
 % description: solve for extinction coefficient from A-scans in B-mode img
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -13,19 +13,20 @@ end
 probe = ProbeConfigOCT(BScan);
 res = probe.vert_res*1e3;   % change unit to [mm]
 mu_s = zeros(1,size(BScan,2)); amp = zeros(1,size(BScan,2));
-window = 200;   % 220
+window = 150;   % 200
 % ====================== fast ver. =======================
 % BScan = FilterRawBScan(BScan,1);
 for col = 1:size(BScan,2)
     AScan = BScan(:,col);
-    [peak_val, peak_ind] = max(AScan(AScan~=max(AScan)));   % find second peak for robustness
+    [peak_val, peak_ind] = max(AScan(AScan));   % find peak
+%     [peak_val, peak_ind] = max(AScan(AScan~=max(AScan)));   % find second peak for robustness
     % solve for Y = xB
     x = [ones(length(AScan(peak_ind:min(peak_ind+window,end))),1), ...
         (1:length(AScan(peak_ind:min(peak_ind+window,end))))'*res];
     if length(x) > 1 && peak_val > intThresh && peak_ind < size(BScan,1)-window
         f = x\double(AScan(peak_ind:min(peak_ind+window,end)));
-%         mu_s(col) = f(end)/-8.7;
-        mu_s(col) = (f(end)/-8.7) / (peak_ind/size(BScan,1));   % compensate for height difference
+        mu_s(col) = f(end)/-8.7;
+%         mu_s(col) = (f(end)/-8.7) / (peak_ind/size(BScan,1));   % compensate for height difference
         amp(col) = 10^(f(1)/10);
     else
         mu_s(col) = nan;
