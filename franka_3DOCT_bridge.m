@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% file name: franka_OCT_bridge.m
+% file name: franka_3DOCT_bridge.m
 % author: Xihan Ma
 % description: communication between OCT and robot, OCT images are captured
 % using matlab_OCT_bridge
@@ -29,7 +29,7 @@ isDataSaved = 0;
 OCT_response_msg.Data = [height, 0.0, isDataSaved];
 
 %% ----------------- initialize OCT -----------------
-[Dev, RawData, Data, Proc, Probe, ScanPattern] = LoadSpectralRadar();
+[Dev, RawData, Data, Proc, Probe, ScanPattern] = LoadSpectralRadar(true);
 
 % ---------------------------------------------------
 %% main loop

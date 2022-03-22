@@ -3,7 +3,7 @@
 % author: Xihan Ma
 % description: get extinction coefficient from A-scans & generate 2D map
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% clc; clear; close all
+clc; clear; close all
 % load BScan & pose data
 data2load = 53:55;
 [data, data_sizes] = DataManagerOCT(data2load); 
@@ -18,9 +18,9 @@ ext_coeff = []; % single scattering model
 
 dwnSmpInterv = 0.00;
 imgFiltThresh = 40;  % 48
-isVisualize = true;
+isVisualize = false;
 tic;
-for item =  4200 % 1:size(data.OCT,3)
+for item = 1:size(data.OCT,3)  % 4200
     fprintf('process %dth image ... \n', item);
     BScan = data.OCT(:,:,item);
     % get extinction coefficient
@@ -75,7 +75,22 @@ upBound = mean(ext_coeff) + 2.0*std(ext_coeff);
 outlier_ind = find(ext_coeff < lowBound | ext_coeff > upBound);
 ext_coeff(outlier_ind) = nan;
 
-%% TODO: project pcd to occupancy grid
+%% visualize 2D extinction coefficient map
+figure('Position',[500,120,1000,600])
+scatter(pc_x*1e3,pc_y*1e3,ones(1,length(pc_x)),ext_coeff*1.4,'filled')
+colormap(gca,'parula') % parula jet gray
+cb = colorbar('Ticks',linspace(min(ext_coeff),max(ext_coeff),5));
+cb.Label.String = 'extinction coefficient [mm^{-1}]'; cb.Label.FontSize = 14;
+xlim([min(pc_x*1e3),max(pc_x*1e3)]);
+ylim([min(pc_y*1e3),max(pc_y*1e3)]);
+xlabel('x [mm]'); ylabel('y [mm]');
+axis equal tight
+% axis off
+clim = caxis;
+caxis([clim(1) 1.02*clim(2)]);
+
+
+%% project pcd to occupancy grid
 map = zeros(1024, 2000, 'single');
 res_x = size(map,2)/(max(pc_x)-min(pc_x));
 res_y = size(map,1)/(max(pc_y)-min(pc_y));
@@ -90,17 +105,3 @@ toc
 map = flipud(map);
 figure('Position',[500,120,1000,600])
 imagesc(map)
-
-%% visualize 2D extinction coefficient map
-figure('Position',[500,120,1000,600])
-scatter(pc_x*1e3,pc_y*1e3,ones(1,length(pc_x)),ext_coeff*1.4,'filled')
-colormap(gca,'parula') % parula jet gray
-cb = colorbar('Ticks',linspace(min(ext_coeff),max(ext_coeff),5));
-cb.Label.String = 'extinction coefficient [mm^{-1}]'; cb.Label.FontSize = 14;
-xlim([min(pc_x*1e3),max(pc_x*1e3)]);
-ylim([min(pc_y*1e3),max(pc_y*1e3)]);
-xlabel('x [mm]'); ylabel('y [mm]');
-axis equal tight
-% axis off
-clim = caxis;
-caxis([clim(1) 1.02*clim(2)]);

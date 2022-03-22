@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% file name: GetScatterCoef.m
+% file name: GetExtCoef.m
 % author: Xihan Ma
 % description: solve for extinction coefficient from A-scans in B-mode img
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -13,19 +13,20 @@ end
 probe = ProbeConfigOCT(BScan);
 res = probe.vert_res*1e3;   % change unit to [mm]
 mu_s = zeros(1,size(BScan,2)); amp = zeros(1,size(BScan,2));
-window = 220;
-% BScan = FilterRawBScan(BScan,1);
+window = 150;   % 200
 % ====================== fast ver. =======================
+% BScan = FilterRawBScan(BScan,1);
 for col = 1:size(BScan,2)
     AScan = BScan(:,col);
-    [peak_val, peak_ind] = max(AScan(AScan~=max(AScan)));   % find second peak for robustness
+    [peak_val, peak_ind] = max(AScan(AScan));   % find peak
+%     [peak_val, peak_ind] = max(AScan(AScan~=max(AScan)));   % find second peak for robustness
     % solve for Y = xB
     x = [ones(length(AScan(peak_ind:min(peak_ind+window,end))),1), ...
         (1:length(AScan(peak_ind:min(peak_ind+window,end))))'*res];
     if length(x) > 1 && peak_val > intThresh && peak_ind < size(BScan,1)-window
         f = x\double(AScan(peak_ind:min(peak_ind+window,end)));
-%         mu_s(col) = f(end)/-8.7;
-        mu_s(col) = (f(end)/-8.7) / (peak_ind/size(BScan,1));   % compensate for height difference
+        mu_s(col) = f(end)/-8.7;
+%         mu_s(col) = (f(end)/-8.7) / (peak_ind/size(BScan,1));   % compensate for height difference
         amp(col) = 10^(f(1)/10);
     else
         mu_s(col) = nan;
@@ -37,9 +38,11 @@ end
 % visualization
 if isVisualize
     f = figure('Position',[1920/6,1080/5,1.5*size(BScan,2),0.5*size(BScan,1)]);
+    % plot B-mode
     subplot(1,2,1)
     yyaxis left; 
-    imagesc(FilterRawBScan(BScan,4)); colormap gray
+    imagesc(BScan); colormap gray
+%     imagesc(FilterRawBScan(BScan,4)); colormap gray
     ylabel('image height [pix]')
     yyaxis right; 
     plot(1:length(mu_s),mu_s,'x','MarkerSize',3.3); 
@@ -49,7 +52,7 @@ if isVisualize
         ylim([mean(mu_s,'omitnan')-6*std(mu_s,'omitnan'),mean(mu_s,'omitnan')+6*std(mu_s,'omitnan')])
     end
     title('BScan')
-    
+    % plot A-mode
     subplot(1,2,2)
     AScan2plot = 1024/2;
     plot((BScan(:,AScan2plot)), (1:length(BScan(:,AScan2plot)))*res, 'LineWidth',1.3); 
