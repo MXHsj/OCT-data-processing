@@ -24,13 +24,11 @@ if ~isGetVol
     % lateral 5.0mm with 1024 AScans
     ScanPattern = calllib('SpectralRadar','createBScanPattern',Probe,5.0,1024);
 else
-%     ApoType = calllib('SpectralRadar','');
-%     AcqOrder =calllib('SpectralRadar','');
-    ApoType = int32(0);
-    AcqOrder = int32(1);
+    ApoType = int32(0);     % set same apodization for faster speed
+    AcqOrder = int32(1);    % acquire all BScans at once
     % lateral 5.0mm with 1024 AScans, 1024 BScans covering 5 mm are stacked
     ScanPattern = calllib('SpectralRadar','createVolumePattern', ...
-        Probe, 5.0, 1024, 5.0, 1024, ApoType, AcqOrder);
+        Probe, 5.0, 1024, 1.0, 200, ApoType, AcqOrder);
 end
 
 % starting the measurement

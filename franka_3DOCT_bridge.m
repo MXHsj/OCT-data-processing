@@ -32,6 +32,13 @@ OCT_response_msg.Data = [height, 0.0, isDataSaved];
 [Dev, RawData, Data, Proc, Probe, ScanPattern] = LoadSpectralRadar(true);
 
 % ---------------------------------------------------
+%% test volume
+tic;
+volume = AcquireSingleVolume(Dev, RawData, Data, Proc);
+volume = uint8(volume);
+toc;
+% volumeViewer(volume);
+
 %% main loop
 % constant
 clear BScan_queue pose_queue
@@ -76,7 +83,7 @@ while true
     % -----------------------------------------------------
     
     % ----------------- get OCT image -----------------
-    BScan = AcquireSingleBScan(Dev, RawData, Data, Proc);
+    BScan = AcquireSingleVolume(Dev, RawData, Data, Proc);
     % find surface
     [val,ind] = max(BScan);
     ind(val < intensity_thresh) = nan;
