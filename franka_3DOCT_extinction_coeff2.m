@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% file name: OCT3D_mosaicing.m
+% file name: franka_3DOCT_extinction_coeff2.m
 % author: Xihan Ma
 % description: perform lateral mosaicing in 2D, then generate 3D volume,
 % then generate extinction coefficient map
@@ -7,7 +7,7 @@
 clc; clear; close all
 % load BScan & pose data
 data2load = 53:55;
-[data, data_sizes] = DataManagerOCT(data2load);
+[data, data_sizes] = FrankaOCTDataManager(data2load);
 fprintf('total frames: %d\n',sum(data_sizes))
 
 %% lateral blending
@@ -74,7 +74,7 @@ fprintf('processing data takes %f sec \n', toc);
 ext_coeff_map = zeros(size(BScan_blend,2),size(BScan_blend,3),'single');
 tic;
 for i = 1:size(BScan_blend,3)
-    [ec, ~] = GetExtCoeff(BScan_blend(:,:,i), 53, false);
+    [ec, ~] = GetExtCoeff(BScan_blend(:,:,i), 53, 150, false);
     ext_coeff_map(:,i) = ec;
     fprintf('process (%d/%d) slice ... \n', i,size(BScan_blend,3));
 end

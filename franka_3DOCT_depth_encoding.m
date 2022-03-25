@@ -1,12 +1,12 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% file name: OCT3D_depth_encoding.m
+% file name: franka_3DOCT_depth_encoding.m
 % author: Xihan Ma
 % description: extract first peak from each AScan & generate 2D depth map
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clc; clear; close all
 % load BScan & pose data
 data2load = 8:10;
-[data, data_sizes] = DataManagerOCT(data2load);
+[data, data_sizes] = FrankaOCTDataManager(data2load);
 
 %% extract first peak from AScan
 probe = ProbeConfigOCT(); % get OCT probe configuration

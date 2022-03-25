@@ -1,12 +1,12 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% file name: OCT3D_extinction_coeff.m
+% file name: franka_3DOCT_extinction_coeff.m
 % author: Xihan Ma
 % description: get extinction coefficient from A-scans & generate 2D map
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clc; clear; close all
 % load BScan & pose data
 data2load = 53:55;
-[data, data_sizes] = DataManagerOCT(data2load); 
+[data, data_sizes] = FrankaOCTDataManager(data2load); 
 
 %% extract extinction coefficient
 probe = ProbeConfigOCT(); % get OCT probe configuration
@@ -18,13 +18,14 @@ ext_coeff = []; % single scattering model
 
 dwnSmpInterv = 0.00;
 imgFiltThresh = 40;  % 48
+fit_window = 200;
 isVisualize = false;
 tic;
 for item = 1:size(data.OCT,3)  % 4200
     fprintf('process %dth image ... \n', item);
     BScan = data.OCT(:,:,item);
     % get extinction coefficient
-    [ec, ~] = GetExtCoeff(BScan, imgFiltThresh, isVisualize);
+    [ec, ~] = GetExtCoeff(BScan, imgFiltThresh, fit_window, isVisualize);
     % find highest peak in each AScan
     [maxAScan, row] = max(BScan(:,~isnan(ec)));
     col = find(maxAScan > imgFiltThresh);

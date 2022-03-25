@@ -1,10 +1,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% file name: DataManagerOCT.m
+% file name: FrankaOCTDataManager.m
 % author: Xihan Ma
-% description: mannage OCT Bscans and robot pose data
+% description: manage OCT Bscans and robot pose data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
-function [data, sizes] = DataManagerOCT(data_id)
+function [data, sizes] = FrankaOCTDataManager(data_id)
 data_folder = '../data/';
 oct_data = ...
 {

@@ -4,8 +4,11 @@
 % description: solve for extinction coefficient from A-scans in B-mode img
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
-function [mu_s, amp] = GetExtCoeff(BScan, intThresh, isVisualize)
+function [mu_s, amp] = GetExtCoeff(BScan, intThresh, window, isVisualize)
 if nargin == 2
+    window = 200;
+    isVisualize = false;
+elseif nargin == 3
     isVisualize = false;
 end
 
@@ -13,17 +16,16 @@ end
 probe = ProbeConfigOCT(BScan);
 res = probe.vert_res*1e3;   % change unit to [mm]
 mu_s = zeros(1,size(BScan,2)); amp = zeros(1,size(BScan,2));
-window = 150;   % 200
 % ====================== fast ver. =======================
 % BScan = FilterRawBScan(BScan,1);
 for col = 1:size(BScan,2)
     AScan = BScan(:,col);
-    [peak_val, peak_ind] = max(AScan(AScan));   % find peak
+    [peak_val, peak_ind] = max(AScan);   % find peak
 %     [peak_val, peak_ind] = max(AScan(AScan~=max(AScan)));   % find second peak for robustness
     % solve for Y = xB
     x = [ones(length(AScan(peak_ind:min(peak_ind+window,end))),1), ...
         (1:length(AScan(peak_ind:min(peak_ind+window,end))))'*res];
-    if length(x) > 1 && peak_val > intThresh && peak_ind < size(BScan,1)-window
+    if length(x)>1 && peak_val>intThresh % && peak_ind+window<size(BScan,1)
         f = x\double(AScan(peak_ind:min(peak_ind+window,end)));
         mu_s(col) = f(end)/-8.7;
 %         mu_s(col) = (f(end)/-8.7) / (peak_ind/size(BScan,1));   % compensate for height difference
@@ -41,13 +43,13 @@ if isVisualize
     % plot B-mode
     subplot(1,2,1)
     yyaxis left; 
-    imagesc(BScan); colormap gray
+    imagesc(BScan, [0 1.2*max(BScan(:))]); colormap gray
 %     imagesc(FilterRawBScan(BScan,4)); colormap gray
     ylabel('image height [pix]')
     yyaxis right; 
     plot(1:length(mu_s),mu_s,'x','MarkerSize',3.3); 
     xlabel('image width [pix]')
-    ylabel('extinction coefficient \mu_s [mm^{-1}]')
+    ylabel('extinction coefficient \mu_t [mm^{-1}]')
     if sum(isnan(mu_s)) < length(mu_s)
         ylim([mean(mu_s,'omitnan')-6*std(mu_s,'omitnan'),mean(mu_s,'omitnan')+6*std(mu_s,'omitnan')])
     end
