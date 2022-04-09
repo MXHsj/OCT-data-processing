@@ -19,6 +19,6 @@
 - thorlabs_3DOCT_extinction_coeff.m 
 
 ## Results
-![OCT pointcloud](generated/wpi_umass_oct.png)
+![OCT pointcloud](generated/wpi_umass_pointcloud.png)
 
-![OCT depth-encoding](generated/wpi_umass_depth_encoding.png)
+![OCT depth-encoding](generated/wpi_umass_depth_encoding.PNG)
