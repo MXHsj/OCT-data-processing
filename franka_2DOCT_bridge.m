@@ -10,7 +10,7 @@ addpath(genpath('utilities/'));
 
 %% ----------------- ROS network -----------------
 rosshutdown
-ros_master_uri = 'http://130.215.211.193:11311';
+ros_master_uri = 'http://130.215.211.180:11311';
 % [~, local_ip] = system('ipconfig');
 local_ip = '130.215.192.168';
 setenv('ROS_MASTER_URI',ros_master_uri) % ip of robot desktop
@@ -36,7 +36,7 @@ OCT_response_msg.Data = [height, 0.0, isDataSaved];
 %% main loop
 % constant
 clear BScan_queue pose_queue
-sample_name = 'breast';
+sample_name = 'humanA';
 freq = 20;      % max: 22; default: 20
 rate = rateControl(freq);
 global OCT_scan_flag
@@ -142,7 +142,7 @@ global BScan_queue pose_queue frm_count scan_count
 tic;
 BScan2save = BScan_queue(:,:,1:frm_count);
 pose2save = pose_queue(:,:,1:frm_count);
-save(['../data/',date,'_BScan{',name,num2str(scan_count),'}.mat'],'BScan2save')
-save(['../data/',date,'_franka_pose{',name,num2str(scan_count),'}.mat'],'pose2save')
+save(['../data/',date,'_BScan{',name,num2str(scan_count),'}.mat'],'BScan2save','-v7')
+save(['../data/',date,'_franka_pose{',name,num2str(scan_count),'}.mat'],'pose2save','-v7')
 fprintf('scan: %d, frm: %d, save data took: %f sec\n', scan_count, frm_count, toc);
 end
