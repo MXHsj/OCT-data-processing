@@ -4,6 +4,8 @@
 % description: extract first peak from each AScan & generate 2D depth map
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clc; clear; close all
+addpath(genpath('utilities/'));
+
 % load BScan & pose data
 data2load = 8:10;
 [data, data_sizes] = FrankaOCTDataManager(data2load);
@@ -20,7 +22,7 @@ dwnSmpInterv = 0.011;
 imgFiltThresh = 48.5; % 47.5;
 tic;
 for item = 1:size(data.OCT,3)
-    fprintf('process %dth image ... \n', item);
+    fprintf('process (%d/%d) image ... \n', item, size(data.OCT,3));
     BScan = data.OCT(:,:,item);
     
     % find highest peak in each AScan

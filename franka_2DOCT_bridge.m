@@ -6,6 +6,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 clc; clear; close all
+addpath(genpath('utilities/'));
 
 %% ----------------- ROS network -----------------
 rosshutdown

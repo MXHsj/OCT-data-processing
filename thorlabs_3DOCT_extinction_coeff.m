@@ -5,10 +5,11 @@
 % example
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clc; clear; close all
+addpath(genpath('matlab_OCT_bridge/'));
+addpath(genpath('utilities/'));
 
 %% load data
 handle = ThorlabsOCTDataManager(1);
-addpath(genpath('matlab_OCT_bridge/'));
 
 %%%%% read dataset properties %%%%%%
 disp(OCTFileGetProperty(handle, 'AcquisitionMode'));

@@ -68,6 +68,9 @@ oct_data = ...
     '12-Jan-2022_BScan{sliced3}.mat', ...           % 58
     '12-Jan-2022_BScan{sliced4}.mat', ...           % 59
     '12-Jan-2022_BScan{sliced5}.mat', ...           % 60
+    '07-Apr-2022_BScan{humanA1}.mat', ...           % 61
+    '07-Apr-2022_BScan{humanA2}.mat', ...           % 62
+    '07-Apr-2022_BScan{humanA3}.mat', ...           % 63
 };
 
 pose_data = ...
@@ -132,6 +135,9 @@ pose_data = ...
     '12-Jan-2022_franka_pose{sliced3}.mat', ...     % 58
     '12-Jan-2022_franka_pose{sliced4}.mat', ...     % 59
     '12-Jan-2022_franka_pose{sliced5}.mat', ...     % 60
+    '07-Apr-2022_franka_pose{humanA1}.mat', ...     % 61
+    '07-Apr-2022_franka_pose{humanA2}.mat', ...     % 62
+    '07-Apr-2022_franka_pose{humanA3}.mat', ...     % 63
 };
 
 fprintf('loading %s ... \n',oct_data{data_id});

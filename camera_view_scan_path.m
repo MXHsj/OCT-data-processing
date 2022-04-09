@@ -4,6 +4,8 @@
 % description: visualize OCT scan path from RGB-D camera view
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clc; clear; close all
+addpath(genpath('utilities/'));
+
 % load BScan & pose data
 data2load = 17:21;
 [data, data_sizes] = DataManagerOCT(data2load); 

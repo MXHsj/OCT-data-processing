@@ -4,8 +4,10 @@
 % description: get extinction coefficient from A-scans & generate 2D map
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clc; clear; close all
+addpath(genpath('utilities/'));
+
 % load BScan & pose data
-data2load = 53:55;
+data2load = 61:63;
 [data, data_sizes] = FrankaOCTDataManager(data2load); 
 
 %% extract extinction coefficient
@@ -18,11 +20,11 @@ ext_coeff = []; % single scattering model
 
 dwnSmpInterv = 0.00;
 imgFiltThresh = 40;  % 48
-fit_window = 200;
+fit_window = 150;
 isVisualize = false;
 tic;
 for item = 1:size(data.OCT,3)  % 4200
-    fprintf('process %dth image ... \n', item);
+    fprintf('process (%d/%d) image ... \n', item, size(data.OCT,3));
     BScan = data.OCT(:,:,item);
     % get extinction coefficient
     [ec, ~] = GetExtCoeff(BScan, imgFiltThresh, fit_window, isVisualize);
@@ -72,7 +74,7 @@ ext_coeff(x2remove|y2remove) = [];
 
 %% limit extinction coeff value range
 lowBound = 0; % median(scatter_coeff) - 1.0*std(scatter_coeff);
-upBound = mean(ext_coeff) + 2.0*std(ext_coeff);
+upBound = mean(ext_coeff) + 1.0*std(ext_coeff);
 outlier_ind = find(ext_coeff < lowBound | ext_coeff > upBound);
 ext_coeff(outlier_ind) = nan;
 
@@ -89,7 +91,6 @@ axis equal tight
 % axis off
 clim = caxis;
 caxis([clim(1) 1.02*clim(2)]);
-
 
 %% project pcd to occupancy grid
 map = zeros(1024, 2000, 'single');

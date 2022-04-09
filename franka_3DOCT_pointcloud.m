@@ -1,9 +1,11 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% file name: OCT3D_pointcloud_display.m
+% file name: franka_3DOCT_pointcloud_display.m
 % author: Xihan Ma
 % description: display 3D pointcloud by extracting points from b-mode OCT
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clc; clear; close all
+addpath(genpath('utilities/'));
+
 isGenVid = false;
 % load BScan & pose data
 data2load = 8:10;

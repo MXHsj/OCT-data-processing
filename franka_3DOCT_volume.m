@@ -1,9 +1,11 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% file name: OCT3D_volume.m
+% file name: franka_3DOCT_volume.m
 % author: Xihan Ma
 % description: generate 3D volumetric data from 2D OCT
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clc; clear; close all
+addpath(genpath('utilities/'));
+
 % load BScan & pose data
 data2load = 8:10;
 [data, data_sizes] = DataManagerOCT(data2load);
