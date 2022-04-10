@@ -21,7 +21,7 @@ yrange = [min(ydata), max(ydata)];
 
 %% lateral blending
 BScan_blend = zeros(height,width*length(data_sizes),min(data_sizes)-1,'uint8');
-overlap = round(0.1*width/7.8); % [pix] 0.1 mm overlap
+overlap = round(0.5*width/7.8); % [pix] 0.1 mm overlap
 imgFiltThresh = 0.7;    % normalized threshold
 blend_flags.isBlend = false;    % set to true to enbale axial/lateral direction blending
 blend_flags.doAxial = true;     % set to true to enable depth compensation in axial direction
@@ -81,7 +81,7 @@ fprintf('processing data takes %f sec \n', toc);
 ext_coeff_map = zeros(size(BScan_blend,2),size(BScan_blend,3),'single');
 tic;
 for i = 1:size(BScan_blend,3)
-    [ec, ~] = GetExtCoeff(BScan_blend(:,:,i), 50, 150, false);
+    [ec, ~] = GetExtCoeff(BScan_blend(:,:,i), 40, 150, false);
     ext_coeff_map(:,i) = ec;
     fprintf('process (%d/%d) slice ... \n', i,size(BScan_blend,3));
 end
@@ -90,7 +90,7 @@ fprintf('processing data takes %f sec \n', toc);
 %% visualize extinction coefficient map
 grid = ext_coeff_map;
 lowBound = 0;
-upBound = mean(grid,'all','omitnan') + 0.5*std(grid,[],'all','omitnan');
+upBound = mean(grid,'all','omitnan') + 0.3*std(grid,[],'all','omitnan');
 outlier_ind = find(grid < lowBound | grid > upBound);
 grid(outlier_ind) = nan;
 figure('Position',[1920/4,1080/4,1200,500])
@@ -99,7 +99,7 @@ imagesc(xrange, yrange, grid); colormap gray;
 xlabel('x [mm]'); ylabel('y [mm]')
 colorbar
 
-%% rearrange extinction coefficient map based on NCC
+%% stack extinction coefficient map based on NCC
 sec1 = (grid(1:width,:));
 sec2 = (grid(width+1:width*2,:));
 sec3 = (grid(width*2+1:width*3,:));
@@ -121,7 +121,7 @@ if doNCCBlend
     [ypeak23,xpeak23] = find(c23==max(c23(:)));
     yoffSet23 = ypeak23-size(sec3_crop,1);
     xoffSet23 = xpeak23-size(sec3_crop,2);
-
+    
     if visNCC
         figure; imagesc(c12); colormap gray; colorbar;
         figure; imagesc(c23); colormap gray; colorbar;
@@ -130,12 +130,11 @@ if doNCCBlend
         figure; imagesc(sec2); axis off; hold on
         drawrectangle(gca,'Position',[xoffSet23,yoffSet23,size(sec3_crop,2),size(sec3_crop,1)],'FaceAlpha',0);
     end
-
     % sec2 = imtranslate(sec2,[xoffSet12,0]);       % lateral translation
     % sec3 = imtranslate(sec3,[xoffSet23,0]);
 else
-        yoffSet12 = width - overlap;
-        yoffSet23 = width - overlap;
+    yoffSet12 = width - overlap;
+    yoffSet23 = width - overlap;
 end
 
 combined = [sec1(1:yoffSet12,:); ...

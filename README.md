@@ -2,9 +2,10 @@
 
 ## Dependencies
 - MATLAB ROS toolbox
+- MATLAB Image Processing Toolbox
 
 ## Usage
-### OCT-Franka bridge through ROS
+### OCT-Franka ROS bridge
 - franka_2DOCT_bridge.m
 - franka_3DOCT_bridge.m
 
@@ -18,7 +19,20 @@
 #### process data collected using ThorImageOCT
 - thorlabs_3DOCT_extinction_coeff.m 
 
-## Results
-![OCT pointcloud](generated/wpi_umass_oct.png)
+## Utility Functions
+### OCT acquisition
+- LoadSpectralRadar.m
+- AcquireSingleBScan.m
+- AcquireSingleVolume.m
+- UnloadSpectralRadar.m
 
-![OCT depth-encoding](generated/wpi_umass_depth_encoding.png)
+### OCT post-processing
+- FrankaOCTDataManager.m
+- ThorlabsOCTDataManager.m
+- FilterRawBscan.m
+- GetExtCoeff.m
+- TransformPoints.m
+- icp.m
+
+## Results
+![OCT pointcloud](generated/wpi_umass_pointcloud.png)
