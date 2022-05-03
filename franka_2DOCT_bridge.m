@@ -10,7 +10,7 @@ addpath(genpath('utilities/'));
 
 %% ----------------- ROS network -----------------
 rosshutdown
-ros_master_uri = 'http://130.215.211.180:11311';
+ros_master_uri = 'http://130.215.123.172:11311';
 % [~, local_ip] = system('ipconfig');
 local_ip = '130.215.192.168';
 setenv('ROS_MASTER_URI',ros_master_uri) % ip of robot desktop
@@ -46,7 +46,7 @@ queue_size = 2600;
 % empirical values: WPI-UMASS->70; breast->58; kidney->52
 intensity_thresh = 60; % threshold above which will be considered as tissue
 rms_err_thresh = 0.035*height;
-store_img_height = 700;
+store_img_height = height;
 % counters
 global frm_count scan_count
 frm_count = 1; scan_count = 1;
