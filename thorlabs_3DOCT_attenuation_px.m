@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% file name: thorlabs_3DOCT_extinction_coeff.m
+% file name: thorlabs_3DOCT_attenuation_px.m
 % author: Xihan Ma
 % description: generate BScan data from .OCT files, modified from Thorlabs
 % example

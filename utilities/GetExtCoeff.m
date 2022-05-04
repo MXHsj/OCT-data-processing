@@ -74,9 +74,9 @@ end
 
 % ==================== visualization ====================
 if isVisualize
-    f = figure('Position',[1920/6,1080/5,0.5*size(BScan,2),0.5*size(BScan,1)]);
+    f = figure('Position',[1920/4,1080/4,0.3*size(BScan,2),0.9*size(BScan,1)]);
     % ===== plot B-mode =====
-    subplot(1,2,1); 
+    subplot(2,1,1); 
     colororder({'b','m'})
     yyaxis left; 
     imagesc(BScan, [0.25, 1.1]*max(BScan(:))); colormap gray
@@ -90,7 +90,7 @@ if isVisualize
     title('BScan')
     
     % ===== plot A-mode =====
-    subplot(1,2,2)
+    subplot(2,1,2)
     AScanInd = round(size(BScan,2)/2);
     z = (1:size(BScan,1))*res;      % z in AScan
     int = BScan(:,AScanInd);        % intensity in AScan

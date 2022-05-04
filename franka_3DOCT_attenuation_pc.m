@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% file name: franka_3DOCT_extinction_coeff.m
+% file name: franka_3DOCT_attenuation_pc.m
 % author: Xihan Ma
 % description: get extinction coefficient from A-scans & generate 2D map
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -7,7 +7,7 @@ clc; clear; close all
 addpath(genpath('utilities/'));
 
 % load BScan & pose data
-data2load = 61:63;
+data2load = 44:47;
 [data, data_sizes] = FrankaOCTDataManager(data2load); 
 
 %% extract extinction coefficient
@@ -74,7 +74,7 @@ ext_coeff(x2remove|y2remove) = [];
 
 %% limit extinction coeff value range
 lowBound = 0; % median(scatter_coeff) - 1.0*std(scatter_coeff);
-upBound = mean(ext_coeff) + 1.0*std(ext_coeff);
+upBound = mean(ext_coeff) + 0.15*std(ext_coeff);
 outlier_ind = find(ext_coeff < lowBound | ext_coeff > upBound);
 ext_coeff(outlier_ind) = nan;
 

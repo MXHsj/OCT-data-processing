@@ -7,7 +7,7 @@ clc; clear; close all
 addpath(genpath('utilities/'));
 
 % load BScan & pose data
-data2load = 8:10;
+data2load = 47:49;
 [data, data_sizes] = DataManagerOCT(data2load);
 fprintf('total frames: %d\n',sum(data_sizes))
 
@@ -22,7 +22,7 @@ imgFiltThresh = 70;
 dwnSmpInterv = -1; % 0.015;
 tic;
 for item = 1:size(data.OCT,3)
-    fprintf('process %dth image ... \n', item);
+    fprintf('process (%d/%d)-th image ... \n', item, size(data.OCT,3));
     slice = data.OCT(:,:,item);
 %     [row,col] = meshgrid(1:height,1:width); row = reshape(row,height*width,1); col = reshape(col,height*width,1);
     [row,col] = find(slice > imgFiltThresh);
@@ -71,8 +71,8 @@ pntcloud = pcdownsample(pntcloud,'random',0.78);
 %% generate volume data from pointcloud
 height = size(data.OCT(:,:,1),1);
 width = size(data.OCT(:,:,1),2);
-% volume = zeros(height,width*length(data_sizes),min(data_sizes),'uint8');
-volume = zeros(500,500,120,'uint8');
+volume = zeros(height,width*length(data_sizes),min(data_sizes),'uint8');
+% volume = zeros(500,500,120,'uint8');
 res_x = floor(size(volume,3)/diff(pntcloud.XLimits));
 res_y = floor(size(volume,2)/diff(pntcloud.YLimits));
 res_z = floor(size(volume,1)/diff(pntcloud.ZLimits));
@@ -88,5 +88,5 @@ for i = 1:length(relative_x)
     fprintf('processing (%d, %d, %d) (%d/%d)\n',x_ind,y_ind,z_ind,i,length(relative_x))
 end
 toc;
-volshow(volume,'ScaleFactors',[1 1 20],'BackgroundColor',[1 1 1],'Lighting',false);
-% volumeViewer(volume)
+% volshow(volume,'ScaleFactors',[1 1 20],'BackgroundColor',[1 1 1],'Lighting',false);
+% save('generated/03-May-2022_vol{humanA}.mat','volume','-v7.3')
