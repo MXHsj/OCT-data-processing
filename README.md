@@ -13,7 +13,8 @@
 #### process data collected using Franka robot
 - ```franka_3DOCT_depth_encoded.m``` : generate 3D depth-encoded map 
 - ```franka_3DOCT_attenuation_pc.m``` : generate 3D attenuation map (pointcloud-based)
-- ```franka_3DOCT_attenuation_px.m``` : generate 3D attenuation map (pixel-based)
+- ```franka_3DOCT_attenuation_px_simple.m``` : generate 3D attenuation map (pixel-based) by naively stacking
+- ```franka_3DOCT_attenuation_px.m``` : generate 3D attenuation map (pixel-based) from pointcloud
 - ```franka_3DOCT_pointcloud.m``` : generate 3D pointcloud
 - ```franka_3DOCT_volume.m``` : generate 3D volume
 #### process data collected using ThorImageOCT

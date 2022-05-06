@@ -2,6 +2,7 @@
 % file name: franka_3DOCT_attenuation_pc.m
 % author: Xihan Ma
 % description: get extinction coefficient from A-scans & generate 2D map
+% using pointcloud
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clc; clear; close all
 addpath(genpath('utilities/'));

@@ -48,15 +48,27 @@ oct_data = ...
     '12-Jan-2022_BScan{sliced3}.mat', ...           % 38
     '12-Jan-2022_BScan{sliced4}.mat', ...           % 39
     '12-Jan-2022_BScan{sliced5}.mat', ...           % 40
-    '07-Apr-2022_BScan{humanA1}.mat', ...           % 41    human kidney sample A overlap: 0.1 mm
-    '07-Apr-2022_BScan{humanA2}.mat', ...           % 42
-    '07-Apr-2022_BScan{humanA3}.mat', ...           % 43
-    '03-May-2022_BScan{humanA1}.mat', ...           % 44    human kidney sample A overlap: 4.0 mm
-    '03-May-2022_BScan{humanA2}.mat', ...           % 45
-    '03-May-2022_BScan{humanA3}.mat', ...           % 46
-    '03-May-2022_BScan{humanA4}.mat', ...           % 47
-    '03-May-2022_BScan{humanA5}.mat', ...           % 48
-    '03-May-2022_BScan{humanA6}.mat', ...           % 49
+    '07-Apr-2022_BScan{humanAf1}.mat', ...          % 41    human kidney sample A overlap: 0.1 mm
+    '07-Apr-2022_BScan{humanAf2}.mat', ...          % 42
+    '07-Apr-2022_BScan{humanAf3}.mat', ...          % 43
+    '03-May-2022_BScan{humanAf1}.mat', ...          % 44    human kidney sample A overlap: 4.0 mm
+    '03-May-2022_BScan{humanAf2}.mat', ...          % 45
+    '03-May-2022_BScan{humanAf3}.mat', ...          % 46
+    '03-May-2022_BScan{humanAf4}.mat', ...          % 47
+    '03-May-2022_BScan{humanAf5}.mat', ...          % 48
+    '03-May-2022_BScan{humanAf6}.mat', ...          % 49
+    '05-May-2022_BScan{humanAf1}.mat', ...          % 50    human kidney sample A front overlap: 3.0 mm
+    '05-May-2022_BScan{humanAf2}.mat', ...          % 51
+    '05-May-2022_BScan{humanAf3}.mat', ...          % 52
+    '05-May-2022_BScan{humanAf4}.mat', ...          % 53
+    '05-May-2022_BScan{humanAf5}.mat', ...          % 54
+    '05-May-2022_BScan{humanAf6}.mat', ...          % 55
+    '05-May-2022_BScan{humanAb1}.mat', ...          % 56    human kidney sample A back overlap: 3.0 mm
+    '05-May-2022_BScan{humanAb2}.mat', ...          % 57
+    '05-May-2022_BScan{humanAb3}.mat', ...          % 58
+    '05-May-2022_BScan{humanAb4}.mat', ...          % 59
+    '05-May-2022_BScan{humanAb5}.mat', ...          % 60
+    '05-May-2022_BScan{humanAb6}.mat', ...          % 61
 };
 
 pose_data = ...
@@ -101,15 +113,27 @@ pose_data = ...
     '12-Jan-2022_franka_pose{sliced3}.mat', ...     % 38
     '12-Jan-2022_franka_pose{sliced4}.mat', ...     % 39
     '12-Jan-2022_franka_pose{sliced5}.mat', ...     % 40
-    '07-Apr-2022_franka_pose{humanA1}.mat', ...     % 41    human kidney sample A overlap: 0.1 mm
-    '07-Apr-2022_franka_pose{humanA2}.mat', ...     % 42
-    '07-Apr-2022_franka_pose{humanA3}.mat', ...     % 43
-    '03-May-2022_franka_pose{humanA1}.mat', ...     % 44    human kidney sample A overlap: 4.0 mm
-    '03-May-2022_franka_pose{humanA2}.mat', ...     % 45
-    '03-May-2022_franka_pose{humanA3}.mat', ...     % 46
-    '03-May-2022_franka_pose{humanA4}.mat', ...     % 47
-    '03-May-2022_franka_pose{humanA5}.mat', ...     % 48
-    '03-May-2022_franka_pose{humanA6}.mat', ...     % 49
+    '07-Apr-2022_franka_pose{humanAf1}.mat', ...    % 41    human kidney sample A overlap: 0.1 mm
+    '07-Apr-2022_franka_pose{humanAf2}.mat', ...    % 42
+    '07-Apr-2022_franka_pose{humanAf3}.mat', ...    % 43
+    '03-May-2022_franka_pose{humanAf1}.mat', ...    % 44    human kidney sample A overlap: 4.0 mm
+    '03-May-2022_franka_pose{humanAf2}.mat', ...    % 45
+    '03-May-2022_franka_pose{humanAf3}.mat', ...    % 46
+    '03-May-2022_franka_pose{humanAf4}.mat', ...    % 47
+    '03-May-2022_franka_pose{humanAf5}.mat', ...    % 48
+    '03-May-2022_franka_pose{humanAf6}.mat', ...    % 49
+    '05-May-2022_franka_pose{humanAf1}.mat', ...    % 50    human kidney sample A front overlap: 3.0 mm
+    '05-May-2022_franka_pose{humanAf2}.mat', ...    % 51
+    '05-May-2022_franka_pose{humanAf3}.mat', ...    % 52
+    '05-May-2022_franka_pose{humanAf4}.mat', ...    % 53
+    '05-May-2022_franka_pose{humanAf5}.mat', ...    % 54
+    '05-May-2022_franka_pose{humanAf6}.mat', ...    % 55
+    '05-May-2022_franka_pose{humanAb1}.mat', ...    % 56    human kidney sample A back overlap: 3.0 mm
+    '05-May-2022_franka_pose{humanAb2}.mat', ...    % 57
+    '05-May-2022_franka_pose{humanAb3}.mat', ...    % 58
+    '05-May-2022_franka_pose{humanAb4}.mat', ...    % 59
+    '05-May-2022_franka_pose{humanAb5}.mat', ...    % 60
+    '05-May-2022_franka_pose{humanAb6}.mat', ...    % 61
 };
 
 fprintf('loading %s ... \n',oct_data{data_id});

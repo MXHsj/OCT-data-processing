@@ -1,190 +1,104 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % file name: franka_3DOCT_attenuation_px.m
 % author: Xihan Ma
-% description: perform lateral mosaicing in 2D, then generate 3D volume,
-% then generate extinction coefficient map
+% description: get extinction coefficient from A-scans & generate 2D map
+% using 2D grid
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clc; clear; close all
 addpath(genpath('utilities/'));
 
 % load BScan & pose data
-data2load = 44:46;
-% data2load = 47:49;
-[data, data_sizes] = FrankaOCTDataManager(data2load);
-fprintf('total frames: %d\n',sum(data_sizes))
+data2load = 51:54;
+[data, data_sizes] = FrankaOCTDataManager(data2load); 
 
-height = size(data.OCT(:,:,1),1);
-width = size(data.OCT(:,:,1),2);
-xdata = squeeze(data.pose(1,end,:))*1e3;    % robot base x
-ydata = squeeze(data.pose(2,end,:))*1e3;    % robot base y
-xrange = [min(xdata), max(xdata)];
-yrange = [min(ydata), max(ydata)];
+%% extract extinction coefficient
+probe = ProbeConfigOCT(); % get OCT probe configuration
+enCalibTune = true;
+T_flange_probe_new = CompCalibErr(probe.T_flange_probe);
 
-%% lateral blending
-% ========== flags ==========
-blend_flags.isBlend = false;    % set to true to enbale axial/lateral direction blending
-blend_flags.doAxial = false;     % set to true to enable depth compensation in axial direction
-blend_flags.doLateral = true;  % set to true to enable automatic overlapping
-blend_flags.vis = false;        % set to true to enable frame-by-frame visualization
-% ===========================
+pc_x = []; pc_y = []; 
+ext_coeff = []; % single scattering model
 
-BScan_blend = zeros(height,width*length(data_sizes),min(data_sizes)-1,'uint8');
-overlap = 4.0;  % overlap between scan lines [mm]
-overlap_pix = round(overlap*width/7.86); % overlap between scan lines [pix]
-imgFiltThresh = 0.7;    % normalized threshold
-
-if blend_flags.vis
-    figure('Position',[1920/4,1080/4,1000,500])
-end
+dwnSmpInterv = 0.00;
+imgFiltThresh = 40;  % 48
+fit_window = 100;
+isVisualize = false;
 tic;
-for frm = 1:min(data_sizes)-1
-    % stitch images in lateral direction
-    for i = 1:length(data_sizes)
-        BScan_blend(:,(length(data_sizes)-i)*width+1:(length(data_sizes)-i)*width+width,frm) ...
-            = data.OCT(:,:,frm+sum(data_sizes(1:i-1)));
-    end
-    if blend_flags.isBlend
-        % use left-hand-side frame as the reference frame
-        BScan_ref = BScan_blend(:,1:width,frm);
-        temp = zeros(size(BScan_blend,1),size(BScan_blend,2),'uint8');
-        temp(:,1:width) = BScan_ref;
-        % align issue in the rest frames to the reference frame
-        for i = 2:length(data_sizes)
-            BScan_raw = BScan_blend(:,(i-1)*width+1:(i-1)*width+width,frm);
-            if blend_flags.doAxial
-                [max_raw, row_raw] = max(FilterRawBScan(BScan_raw,4));
-                [max_ref, row_ref] = max(FilterRawBScan(BScan_ref,4));
-                if max_raw(1) > imgFiltThresh && max_ref(end) > imgFiltThresh
-                    axial_offset = mean(row_ref(end-1:end)) - mean(row_raw(1:2));
-                else
-                    axial_offset = 0;
-                end
-            else
-                axial_offset = 0;
-            end
-            if blend_flags.doLateral
-                lateral_offset = -overlap_pix*(i-1);
-            else
-                lateral_offset = 0;
-            end
-            BScan_warp = imtranslate(BScan_raw,[lateral_offset,axial_offset]);
-            temp(:,(i-1)*width+1+lateral_offset:i*width+lateral_offset) = BScan_warp;
-            BScan_ref = BScan_warp;
+for item = 1:size(data.OCT,3)  % 4200
+    fprintf('process (%d/%d) image ... \n', item, size(data.OCT,3));
+    BScan = data.OCT(:,:,item);
+    % get extinction coefficient
+    [ec, ~] = GetExtCoeff(BScan, imgFiltThresh, fit_window, isVisualize);
+    % find highest peak in each AScan
+    [maxAScan, row] = max(BScan(:,~isnan(ec)));
+    col = find(maxAScan > imgFiltThresh);
+    row = row(col);
+    if ~isempty(row) && ~isempty(col)
+        xlocal = zeros(1,length(row));
+        ylocal = -(probe.y/probe.width).*(col-1) + probe.y/2;
+        zlocal = (probe.z/probe.height).*(row-1);
+
+        T = data.pose(:,:,item);
+         % compensate for calibration err
+        if enCalibTune
+            T_base_flange = T/probe.T_flange_probe; % T*inv(probe.T_flange_probe)
+            T = T_base_flange * T_flange_probe_new;
         end
-        BScan_blend(:,:,frm) = temp;
-    end
-    fprintf('process (%d/%d) slice ... \n', frm,min(data_sizes)-1);
-    if blend_flags.vis
-        imagesc(BScan_blend(:,:,frm));
-        pause(0.01)
-    end
+        [xglobal, yglobal, ~] = TransformPoints(T,xlocal,ylocal,zlocal);
+        % downsample
+        if dwnSmpInterv > 0
+            xglobal = downsample(xglobal,ceil(dwnSmpInterv*length(xglobal)));
+            yglobal = downsample(yglobal,ceil(dwnSmpInterv*length(yglobal)));
+            ec = downsample(ec, ceil(dwnSmpInterv*length(ec)));
+        end
+        % append
+        if length(ec(~isnan(ec))) ~= length(xglobal)
+            disp('size discrepency: number of extracted coefficient less than number of points')
+            break
+        end
+        pc_x = cat(2, pc_x, xglobal);
+        pc_y = cat(2, pc_y, yglobal);
+        ext_coeff = cat(2, ext_coeff, ec(~isnan(ec)));
+    end 
 end
+pc_x = single(pc_x); pc_y = single(pc_y);
+ext_coeff = single(ext_coeff);
 fprintf('processing data takes %f sec \n', toc);
 
-% volumeViewer(BScan_blend);
-% save('mosaiced_volume.mat','BScan_blend','-v7.3');
+%% limit extinction coeff value range
+lowBound = 0; % median(scatter_coeff) - 1.0*std(scatter_coeff);
+upBound = mean(ext_coeff) + 0.15*std(ext_coeff);
+outlier_ind = find(ext_coeff < lowBound | ext_coeff > upBound);
+ext_coeff(outlier_ind) = nan;
 
-%% generate attenuation map
-ext_coeff_map = zeros(size(BScan_blend,2),size(BScan_blend,3),'single');
-tic;
-for i = 1:size(BScan_blend,3)
-    [ec, ~] = GetExtCoeff(BScan_blend(:,:,i), 40, 110, false);
-    ext_coeff_map(:,i) = ec;
-    fprintf('process (%d/%d) slice ... \n', i,size(BScan_blend,3));
+%% visualize 2D scattered attenuation map
+figure('Position',[500,120,1000,600])
+scatter(pc_x*1e3,pc_y*1e3,ones(1,length(pc_x)),ext_coeff*1.4,'filled')
+colormap(gca,'parula') % parula jet gray
+cb = colorbar('Ticks',linspace(min(ext_coeff),max(ext_coeff),5));
+cb.Label.String = 'extinction coefficient [mm^{-1}]'; cb.Label.FontSize = 14;
+xlim([min(pc_x*1e3),max(pc_x*1e3)]);
+ylim([min(pc_y*1e3),max(pc_y*1e3)]);
+xlabel('x [mm]'); ylabel('y [mm]');
+axis equal tight
+% axis off
+clim = caxis;
+caxis([clim(1) 1.02*clim(2)]);
+
+%% project pointcloud to occupancy grid
+map = zeros(1024, 2000, 'single');
+res_x = size(map,2)/(max(pc_x)-min(pc_x));
+res_y = size(map,1)/(max(pc_y)-min(pc_y));
+tic
+for i = 1:length(pc_x)
+    x_ind = round(pc_x(i)*res_x - min(pc_x)*res_x) + 1;
+    y_ind = round(pc_y(i)*res_y - min(pc_y)*res_y) + 1;
+    map(y_ind, x_ind) = ext_coeff(i);
+    fprintf('processing map(%d, %d) (%d/%d)\n',x_ind,y_ind,i,length(ext_coeff))
 end
-fprintf('processing data takes %f sec \n', toc);
+toc
 
-%% visualize attenuation map
-grid = ext_coeff_map;
-lowBound = 0;
-upBound = mean(grid,'all','omitnan') + 0.3*std(grid,[],'all','omitnan');
-outlier_ind = find(grid < lowBound | grid > upBound);
-grid(outlier_ind) = nan;
-figure('Position',[1920/4,1080/4,1200,500])
-grid = flipud(grid);        % flip bottom up
-imagesc(xrange, yrange, grid); colormap gray; 
-xlabel('x [mm]'); ylabel('y [mm]')
-colorbar
-
-%% blend attenuation coefficient map based on overlapped size
-% works well when overlap is less than 50%
-sec = grid;
-sec(isnan(sec)) = 0;
-
-yoffSet = width - overlap_pix;  % non-overlapped height
-xoffSet = 0;
-
-% stack blended map
-combined = [];
-for i = 1:length(data2load)
-    if i == 1   % first segment
-        fprintf('i: %d, from %d to %d \n', i, 1, yoffSet)
-        combined = [combined; sec(1:yoffSet,:)];
-    else        % rest segments
-        fprintf('i: %d, from %d to %d \n', i, (i-2)*width+yoffSet, i*width)
-        temp1 = sec((i-2)*width+yoffSet:(i-1)*width,:);
-        temp2 = sec((i-1)*width:(i-1)*width+yoffSet,:);
-        if i == length(data2load)
-            nonoverlapped = sec((i-1)*width+yoffSet:i*width,:);
-        else
-            nonoverlapped = [];
-        end
-%         combined = [combined; ((temp1 + temp2)./2).^1.0; nonoverlapped];
-        combined = [combined; ((temp1(1:size(temp2,1),:))+temp2)./2; nonoverlapped];
-    end
-end
-combined = imfilter(combined,eye(3));
-% combined = flipud(combined);        % flip bottom up
-
-figure('Position',[1920/4,1080/4,1200,500]); 
-imagesc(xrange, yrange, combined); colormap gray; 
-xlabel('x [mm]'); ylabel('y [mm]')
-colorbar
-
-%% blend attenuation coefficient map based on NCC
-% TODO: generalize to n maps case
-
-visNCC = false;         % visualize NCC for consecutive maps
-
-sec1 = (grid(1:width,:));
-sec2 = (grid(width+1:width*2,:));
-sec3 = (grid(width*2+1:width*3,:));
-sec1(isnan(sec1)) = 0; sec2(isnan(sec2)) = 0; sec3(isnan(sec3)) = 0;
-
-sec2_crop = sec2(1:100,:);
-sec3_crop = sec3(1:100,:);
-c12 = normxcorr2(sec2_crop, sec1);
-c23 = normxcorr2(sec3_crop, sec2);
-
-[ypeak12,xpeak12] = find(c12==max(c12(:)));
-yoffSet12 = ypeak12-size(sec2_crop,1);
-xoffSet12 = xpeak12-size(sec2_crop,2);
-
-[ypeak23,xpeak23] = find(c23==max(c23(:)));
-yoffSet23 = ypeak23-size(sec3_crop,1);
-xoffSet23 = xpeak23-size(sec3_crop,2);
-
-if visNCC
-    figure; imagesc(c12); colormap gray; colorbar;
-    figure; imagesc(c23); colormap gray; colorbar;
-    figure; imagesc(sec1); axis off; hold on
-    drawrectangle(gca,'Position',[xoffSet12,yoffSet12,size(sec2_crop,2),size(sec2_crop,1)],'FaceAlpha',0);
-    figure; imagesc(sec2); axis off; hold on
-    drawrectangle(gca,'Position',[xoffSet23,yoffSet23,size(sec3_crop,2),size(sec3_crop,1)],'FaceAlpha',0);
-end
-
-sec2 = imtranslate(sec2,[xoffSet12,0]);       % lateral translation
-sec3 = imtranslate(sec3,[xoffSet23+xoffSet12,0]);
-
-combined = [sec1(1:yoffSet12,:); ...
-            ((sec1(yoffSet12+1:end,:)+sec2(1:1024-yoffSet12,:))./2).^1.0; ...
-            sec2(1024-yoffSet12+1:yoffSet23,:);
-            ((sec2(yoffSet23+1:end,:)+sec3(1:1024-yoffSet23,:))./2).^1.0; ...
-            sec3(1024-yoffSet23+1:end,:)];
-combined = imfilter(combined,eye(3));
-% combined = flipud(combined);        % flip bottom up
-
-figure('Position',[1920/4,1080/4,1200,500]); 
-imagesc(xrange, yrange, combined); colormap gray; 
-xlabel('x [mm]'); ylabel('y [mm]')
-colorbar
+%% visualize 2D attenuation map
+map = flipud(map);
+figure('Position',[500,120,1000,600])
+imagesc(map)

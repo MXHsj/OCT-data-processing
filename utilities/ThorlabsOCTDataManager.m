@@ -10,7 +10,8 @@ data_folder = '../data/';
 
 oct_data = ...
 {
-    '24-Mar-2022_thorlabs_volume{human}.oct'        % 1
+    '24-Mar-2022_volume{humanA}.oct', ...   % 1
+    '05-May-2022_volume{humanA}.oct'        % 2
 };
 
 handle = OCTFileOpen([data_folder,oct_data{data_id}]);
