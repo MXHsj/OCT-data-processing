@@ -9,18 +9,17 @@ addpath(genpath('utilities/'));
 
 % load BScan & pose data
 data2load = 51:54;
-[data, data_sizes] = FrankaOCTDataManager(data2load); 
+[data, data_sizes] = FrankaOCTDataManager(data2load);
 
 %% extract extinction coefficient
 probe = ProbeConfigOCT(); % get OCT probe configuration
 enCalibTune = true;
 T_flange_probe_new = CompCalibErr(probe.T_flange_probe);
 
-pc_x = []; pc_y = []; 
-ext_coeff = []; % single scattering model
+pc_x = []; pc_y = []; ext_coeff_raw = [];
 
-dwnSmpInterv = 0.00;
-imgFiltThresh = 40;  % 48
+dwnSmpInterv = -1;
+imgFiltThresh = 35;  % 48
 fit_window = 100;
 isVisualize = false;
 tic;
@@ -58,47 +57,39 @@ for item = 1:size(data.OCT,3)  % 4200
         end
         pc_x = cat(2, pc_x, xglobal);
         pc_y = cat(2, pc_y, yglobal);
-        ext_coeff = cat(2, ext_coeff, ec(~isnan(ec)));
+        ext_coeff_raw = cat(2, ext_coeff_raw, ec(~isnan(ec)));
     end 
 end
 pc_x = single(pc_x); pc_y = single(pc_y);
-ext_coeff = single(ext_coeff);
+ext_coeff_raw = single(ext_coeff_raw);
 fprintf('processing data takes %f sec \n', toc);
 
 %% limit extinction coeff value range
+ext_coeff = ext_coeff_raw;
 lowBound = 0; % median(scatter_coeff) - 1.0*std(scatter_coeff);
-upBound = mean(ext_coeff) + 0.15*std(ext_coeff);
+upBound = mean(ext_coeff) + 0.1*std(ext_coeff);
 outlier_ind = find(ext_coeff < lowBound | ext_coeff > upBound);
 ext_coeff(outlier_ind) = nan;
 
-%% visualize 2D scattered attenuation map
-figure('Position',[500,120,1000,600])
-scatter(pc_x*1e3,pc_y*1e3,ones(1,length(pc_x)),ext_coeff*1.4,'filled')
-colormap(gca,'parula') % parula jet gray
-cb = colorbar('Ticks',linspace(min(ext_coeff),max(ext_coeff),5));
-cb.Label.String = 'extinction coefficient [mm^{-1}]'; cb.Label.FontSize = 14;
-xlim([min(pc_x*1e3),max(pc_x*1e3)]);
-ylim([min(pc_y*1e3),max(pc_y*1e3)]);
-xlabel('x [mm]'); ylabel('y [mm]');
-axis equal tight
-% axis off
-clim = caxis;
-caxis([clim(1) 1.02*clim(2)]);
-
-%% project pointcloud to occupancy grid
+%% project pointcloud to 2D grid
+tic
 map = zeros(1024, 2000, 'single');
 res_x = size(map,2)/(max(pc_x)-min(pc_x));
 res_y = size(map,1)/(max(pc_y)-min(pc_y));
-tic
+x_ind = round((pc_x - min(pc_x))*res_x); x_ind(x_ind == 0) = 1;
+y_ind = round((pc_y - min(pc_y))*res_y); y_ind(y_ind == 0) = 1;
 for i = 1:length(pc_x)
-    x_ind = round(pc_x(i)*res_x - min(pc_x)*res_x) + 1;
-    y_ind = round(pc_y(i)*res_y - min(pc_y)*res_y) + 1;
-    map(y_ind, x_ind) = ext_coeff(i);
-    fprintf('processing map(%d, %d) (%d/%d)\n',x_ind,y_ind,i,length(ext_coeff))
+    map(y_ind(i), x_ind(i)) = ext_coeff(i);
+%     fprintf('processing map(%d, %d) (%d/%d)\n',x_ind(i),y_ind(i),i,length(pc_x))
 end
+clear x_ind y_ind
 toc
 
-%% visualize 2D attenuation map
+%% visualize 2D attenuation map (grid)
+xrange = [min(pc_x), max(pc_x)];
+yrange = [min(pc_y), max(pc_y)];
+figure('Position',[1920/4,1080/4,1200,500])
 map = flipud(map);
-figure('Position',[500,120,1000,600])
-imagesc(map)
+imagesc(xrange*1e3, yrange*1e3, map); colormap gray; axis equal tight
+xlabel('x [mm]'); ylabel('y [mm]');
+colorbar

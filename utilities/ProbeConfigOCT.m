@@ -17,8 +17,8 @@ probe.hori_res = 0.0076*1e-3;     % [m/pix]
 probe.vert_res = 0.0035*1e-3;     % [m/pix]
 % probe.y = probe.hori_res*probe.width;
 % probe.z = probe.vert_res*probe.height;
-probe.y = 7.80e-3;                   % 7.80 [mm]
-probe.z = 2.45e-3;                   % 2.45 [mm]
+probe.y = 7.80e-3;                   % [m] == 7.80 [mm]
+probe.z = 2.45e-3;                   % [m] == 2.45 [mm]
 
 % probe calibration
 % OCT old end-effector: apply to data before Oct 2021

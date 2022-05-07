@@ -1,4 +1,8 @@
+# temporary files
 *.asv
+*-checkpoint.ipynb
+
+# data
 *.OCT
 *.csv
 *.jpg

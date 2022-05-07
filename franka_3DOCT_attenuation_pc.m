@@ -92,19 +92,3 @@ axis equal tight
 % axis off
 clim = caxis;
 caxis([clim(1) 1.02*clim(2)]);
-
-%% project pcd to occupancy grid
-map = zeros(1024, 2000, 'single');
-res_x = size(map,2)/(max(pc_x)-min(pc_x));
-res_y = size(map,1)/(max(pc_y)-min(pc_y));
-tic
-for i = 1:length(pc_x)
-    x_ind = round(pc_x(i)*res_x - min(pc_x)*res_x) + 1;
-    y_ind = round(pc_y(i)*res_y - min(pc_y)*res_y) + 1;
-    map(y_ind, x_ind) = ext_coeff(i);
-%     fprintf('processing map(%d, %d) (%d/%d)\n',x_ind,y_ind,i,length(ext_coeff))
-end
-toc
-map = flipud(map);
-figure('Position',[500,120,1000,600])
-imagesc(map)

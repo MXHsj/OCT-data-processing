@@ -90,7 +90,7 @@ fprintf('processing data takes %f sec \n', toc);
 ext_coeff_map = zeros(size(BScan_blend,2),size(BScan_blend,3),'single');
 tic;
 for i = 1:size(BScan_blend,3)
-    [ec, ~] = GetExtCoeff(BScan_blend(:,:,i), 40, 110, false);
+    [ec, ~] = GetExtCoeff(BScan_blend(:,:,i), 50, 110, false);
     ext_coeff_map(:,i) = ec;
     fprintf('process (%d/%d) slice ... \n', i,size(BScan_blend,3));
 end
@@ -186,9 +186,9 @@ combined = [sec1(1:yoffSet12,:); ...
             ((sec2(yoffSet23+1:end,:)+sec3(1:1024-yoffSet23,:))./2).^1.0; ...
             sec3(1024-yoffSet23+1:end,:)];
 combined = imfilter(combined,eye(3));
-% combined = flipud(combined);        % flip bottom up
+combined = flipud(combined);        % flip bottom up
 
 figure('Position',[1920/4,1080/4,1200,500]); 
-imagesc(xrange, yrange, combined); colormap gray; 
+imagesc(xrange*1e3, yrange*1e3, combined); colormap gray;
 xlabel('x [mm]'); ylabel('y [mm]')
 colorbar
