@@ -186,7 +186,7 @@ combined = [sec1(1:yoffSet12,:); ...
             ((sec2(yoffSet23+1:end,:)+sec3(1:1024-yoffSet23,:))./2).^1.0; ...
             sec3(1024-yoffSet23+1:end,:)];
 combined = imfilter(combined,eye(3));
-combined = flipud(combined);        % flip bottom up
+% combined = flipud(combined);        % flip bottom up
 
 figure('Position',[1920/4,1080/4,1200,500]); 
 imagesc(xrange*1e3, yrange*1e3, combined); colormap gray;

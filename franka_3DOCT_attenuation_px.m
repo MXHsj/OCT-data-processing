@@ -12,84 +12,107 @@ data2load = 51:54;
 [data, data_sizes] = FrankaOCTDataManager(data2load);
 
 %% extract extinction coefficient
+
+% ========== parameters ==========
 probe = ProbeConfigOCT(); % get OCT probe configuration
-enCalibTune = true;
+enCalibTune = true; % if compensate for calibration error
 T_flange_probe_new = CompCalibErr(probe.T_flange_probe);
-
-pc_x = []; pc_y = []; ext_coeff_raw = [];
-
-dwnSmpInterv = -1;
-imgFiltThresh = 35;  % 48
-fit_window = 100;
+WIDTH_BEGIN = 1;
+WIDTH = size(data.OCT(:, :, 1), 2) - (WIDTH_BEGIN - 1) - 0;
+FRM_NUM = size(data.OCT, 3);
+assert(WIDTH > 0, 'frame wdith less than 0');
+imgFiltThresh = 50; % 48
+fit_window = 110;
 isVisualize = false;
+% ================================
+
+% pre-allocate point coordinates
+pc_x = zeros(1, WIDTH * FRM_NUM, 'single');
+pc_y = zeros(1, WIDTH * FRM_NUM, 'single');
+ext_coeff_raw = zeros(1, WIDTH * FRM_NUM, 'single');
+
+% calculate pixel local coordinates in one frame
+col = WIDTH_BEGIN:WIDTH_BEGIN + WIDTH - 1;
+row = ones(1, WIDTH);
+xlocal = zeros(1, length(col));
+ylocal =- (probe.y / probe.width) .* (col - 1) + probe.y / 2;
+zlocal = (probe.z / probe.height) .* (row - 1);
+
 tic;
-for item = 1:size(data.OCT,3)  % 4200
-    fprintf('process (%d/%d) image ... \n', item, size(data.OCT,3));
-    BScan = data.OCT(:,:,item);
+
+for frm = 1:FRM_NUM % 4200
+    fprintf('process (%d/%d) image ... \n', frm, size(data.OCT, 3));
+    BScan = data.OCT(:, :, frm);
     % get extinction coefficient
     [ec, ~] = GetExtCoeff(BScan, imgFiltThresh, fit_window, isVisualize);
-    % find highest peak in each AScan
-    [maxAScan, row] = max(BScan(:,~isnan(ec)));
-    col = find(maxAScan > imgFiltThresh);
-    row = row(col);
-    if ~isempty(row) && ~isempty(col)
-        xlocal = zeros(1,length(row));
-        ylocal = -(probe.y/probe.width).*(col-1) + probe.y/2;
-        zlocal = (probe.z/probe.height).*(row-1);
+    T = data.pose(:, :, frm);
+    % compensate for calibration err
+    if enCalibTune
+        T_base_flange = T / probe.T_flange_probe; % T*inv(probe.T_flange_probe)
+        T = T_base_flange * T_flange_probe_new;
+    end
 
-        T = data.pose(:,:,item);
-         % compensate for calibration err
-        if enCalibTune
-            T_base_flange = T/probe.T_flange_probe; % T*inv(probe.T_flange_probe)
-            T = T_base_flange * T_flange_probe_new;
-        end
-        [xglobal, yglobal, ~] = TransformPoints(T,xlocal,ylocal,zlocal);
-        % downsample
-        if dwnSmpInterv > 0
-            xglobal = downsample(xglobal,ceil(dwnSmpInterv*length(xglobal)));
-            yglobal = downsample(yglobal,ceil(dwnSmpInterv*length(yglobal)));
-            ec = downsample(ec, ceil(dwnSmpInterv*length(ec)));
-        end
-        % append
-        if length(ec(~isnan(ec))) ~= length(xglobal)
-            disp('size discrepency: number of extracted coefficient less than number of points')
-            break
-        end
-        pc_x = cat(2, pc_x, xglobal);
-        pc_y = cat(2, pc_y, yglobal);
-        ext_coeff_raw = cat(2, ext_coeff_raw, ec(~isnan(ec)));
-    end 
+    if abs(det(T) - 1.0) > 1e-3
+        warning('frm %d does not have a valid transformation', frm)
+        continue
+    end
+
+    [xglobal, yglobal, ~] = TransformPoints(T, xlocal, ylocal, zlocal);
+    % store coordinates
+    pc_x((frm - 1) * WIDTH + 1:frm * WIDTH) = xglobal * 1e3; % mm
+    pc_y((frm - 1) * WIDTH + 1:frm * WIDTH) = yglobal * 1e3;
+    ext_coeff_raw((frm - 1) * WIDTH + 1:frm * WIDTH) = ec;
 end
-pc_x = single(pc_x); pc_y = single(pc_y);
-ext_coeff_raw = single(ext_coeff_raw);
-fprintf('processing data takes %f sec \n', toc);
 
-%% limit extinction coeff value range
+valid_ind = find(pc_x == 0 & pc_y == 0, 1);
+pc_x(valid_ind:end) = [];
+pc_y(valid_ind:end) = [];
+ext_coeff_raw(valid_ind:end) = [];
+
+fprintf('processing data takes %f sec \n', toc);
+clear xlocal ylocal zlocal xglobal yglobal zglobal
+clear ec row col BScan probe
+
+%% project pointcloud to 2D grid
+% limit extinction coeff value range
 ext_coeff = ext_coeff_raw;
-lowBound = 0; % median(scatter_coeff) - 1.0*std(scatter_coeff);
-upBound = mean(ext_coeff) + 0.1*std(ext_coeff);
+lowBound = 0;
+upBound = mean(ext_coeff) + 1.0 * std(ext_coeff);
 outlier_ind = find(ext_coeff < lowBound | ext_coeff > upBound);
 ext_coeff(outlier_ind) = nan;
 
-%% project pointcloud to 2D grid
-tic
-map = zeros(1024, 2000, 'single');
-res_x = size(map,2)/(max(pc_x)-min(pc_x));
-res_y = size(map,1)/(max(pc_y)-min(pc_y));
-x_ind = round((pc_x - min(pc_x))*res_x); x_ind(x_ind == 0) = 1;
-y_ind = round((pc_y - min(pc_y))*res_y); y_ind(y_ind == 0) = 1;
+tic;
+scale = 0.7;
+GRID_HEIGHT = round(WIDTH * length(data_sizes) * scale);
+GRID_WIDTH = round(min(data_sizes) * scale);
+map_raw = zeros(GRID_HEIGHT, GRID_WIDTH, 'single');
+
+res_ele = GRID_WIDTH / (max(pc_x) - min(pc_x));
+res_lat = GRID_HEIGHT / (max(pc_y) - min(pc_y));
+ind_ele = round((pc_x - min(pc_x)) * res_ele);
+ind_lat = round((pc_y - min(pc_y)) * res_lat);
+ind_ele(ind_ele == 0) = 1;
+ind_lat(ind_lat == 0) = 1;
+
 for i = 1:length(pc_x)
-    map(y_ind(i), x_ind(i)) = ext_coeff(i);
-%     fprintf('processing map(%d, %d) (%d/%d)\n',x_ind(i),y_ind(i),i,length(pc_x))
+    map_raw(ind_lat(i), ind_ele(i)) = ext_coeff(i);
 end
-clear x_ind y_ind
-toc
+
+% clear ind_ele ind_lat
+fprintf('generate extinction coeff map took %f sec \n', toc);
 
 %% visualize 2D attenuation map (grid)
+% interpolation
+interp_step = 0.5;
+[X_raw, Y_raw] = meshgrid(single(1:GRID_WIDTH), single(1:GRID_HEIGHT));
+[X, Y] = meshgrid(single(1:interp_step:GRID_WIDTH), single(1:interp_step:GRID_HEIGHT));
+map = interp2(X_raw, Y_raw, single(map_raw), X, Y);
+fprintf('post processing took %f sec \n', toc);
+
 xrange = [min(pc_x), max(pc_x)];
 yrange = [min(pc_y), max(pc_y)];
-figure('Position',[1920/4,1080/4,1200,500])
-map = flipud(map);
-imagesc(xrange*1e3, yrange*1e3, map); colormap gray; axis equal tight
+figure('Position', [1920/4, 1080/4, 1200, 500])
+% map = flipud(map);
+imagesc(xrange, yrange, map, [0 1.5]); colormap gray; axis tight
 xlabel('x [mm]'); ylabel('y [mm]');
 colorbar
