@@ -2,7 +2,7 @@
 % file name: franka_3DOCT_bridge.m
 % author: Xihan Ma
 % description: communication between OCT and robot, OCT images are captured
-% using matlab_OCT_bridge
+% using matlab_OCT_bridge (under development)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 clc; clear; close all

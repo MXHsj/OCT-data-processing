@@ -10,7 +10,7 @@ addpath(genpath('utilities/'));
 
 %% ----------------- ROS network -----------------
 rosshutdown
-ros_master_uri = 'http://130.215.123.172:11311';
+ros_master_uri = 'http://130.215.9.78:11311';
 % [~, local_ip] = system('ipconfig');
 local_ip = '130.215.192.168';
 setenv('ROS_MASTER_URI',ros_master_uri) % ip of robot desktop
@@ -36,13 +36,13 @@ OCT_response_msg.Data = [height, 0.0, isDataSaved];
 %% main loop
 % constant
 clear BScan_queue pose_queue
-sample_name = 'humanA';
+sample_name = 'humanAb';
 freq = 20;      % max: 22; default: 20
 rate = rateControl(freq);
 global OCT_scan_flag
 OCT_scan_flag = 0;
 isStartScan = false;                % robot start scanning flag
-queue_size = 2600;
+max_queue_size = 2600;
 % empirical values: WPI-UMASS->70; breast->58; kidney->52
 intensity_thresh = 60; % threshold above which will be considered as tissue
 rms_err_thresh = 0.035*height;
@@ -54,8 +54,8 @@ frm_count = 1; scan_count = 1;
 % BScan_bw = zeros(height,width,'logical');
 % surf_row_ind = zeros(1,width);
 global BScan_queue pose_queue
-BScan_queue = zeros(store_img_height,width,queue_size,'uint8');   % use uint8 to save space
-pose_queue = zeros(4,4,queue_size,'double');
+BScan_queue = zeros(store_img_height,width,max_queue_size,'uint8');   % use uint8 to save space
+pose_queue = zeros(4,4,max_queue_size,'double');
 
 while true
     tic;    
@@ -71,7 +71,9 @@ while true
         isStartScan = false;
         disp('robot stop scanning')
         save_data(sample_name);
-        isDataSaved=1; frm_count=1; scan_count = scan_count+1;
+        isDataSaved=1; 
+        frm_count=1; 
+        scan_count = scan_count+1;
         % break
     end
     % -----------------------------------------------------
@@ -81,7 +83,8 @@ while true
     % find surface
     [val,ind] = max(BScan);
     ind(val < intensity_thresh) = nan;
-    surf_height = min(ind(~isnan(ind))); % top-most tissue
+    surf_height = min(ind(~isnan(ind)));  % top-most tissue
+%     surf_height = mean(ind(~isnan(ind))); % tissue in the middle
     % fit line to surface using A = xB
     xx = (1:length(ind))'; xx(isnan(ind)) = [];
     x = [ones(length(ind(~isnan(ind))),1), xx];
@@ -101,7 +104,7 @@ while true
         pose_queue(:,:,frm_count) = franka_pose;
         frm_count = frm_count + 1;
     end
-    if frm_count >= queue_size
+    if frm_count >= max_queue_size
         disp('reached maximum storage')
         break
     end
@@ -140,9 +143,9 @@ end
 function save_data(name)
 global BScan_queue pose_queue frm_count scan_count
 tic;
-BScan2save = BScan_queue(:,:,1:frm_count);
-pose2save = pose_queue(:,:,1:frm_count);
+BScan2save = BScan_queue(:,:,1:frm_count-1);
+pose2save = pose_queue(:,:,1:frm_count-1);
 save(['../data/',date,'_BScan{',name,num2str(scan_count),'}.mat'],'BScan2save','-v7')
 save(['../data/',date,'_franka_pose{',name,num2str(scan_count),'}.mat'],'pose2save','-v7')
-fprintf('scan: %d, frm: %d, save data took: %f sec\n', scan_count, frm_count, toc);
+fprintf('scan: %d, frm: %d, save data took: %f sec\n', scan_count, frm_count-1, toc);
 end
