@@ -1,14 +1,14 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% file name: franka_3DOCT_attenuation_px_simple.m
+% file name: franka_3DOCT_attenuation_px_test.m
 % author: Xihan Ma
 % description: perform lateral mosaicing in 2D, then generate 3D volume,
-% then generate extinction coefficient map
+% then generate extinction coefficient map (experimental)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clc; clear; close all
 addpath(genpath('utilities/'));
 
 % load BScan & pose data
-data2load = 51:54;
+data2load = 51:52;
 [data, data_sizes] = FrankaOCTDataManager(data2load);
 fprintf('total frames: %d\n',sum(data_sizes))
 

@@ -1,118 +1,104 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % file name: franka_3DOCT_attenuation_px.m
 % author: Xihan Ma
-% description: get extinction coefficient from A-scans & generate 2D map
-% using 2D grid
+% description: perform lateral mosaicing in 2D, then generate extinction coefficient map (overlap must be less than 50%)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clc; clear; close all
 addpath(genpath('utilities/'));
 
 % load BScan & pose data
-data2load = 51:54;
+data2load = 50; % 50:55
 [data, data_sizes] = FrankaOCTDataManager(data2load);
+fprintf('total frames: %d\n', sum(data_sizes))
 
-%% extract extinction coefficient
+clear data2load
+height = size(data.OCT(:, :, 1), 1);
+width = size(data.OCT(:, :, 1), 2);
 
-% ========== parameters ==========
-probe = ProbeConfigOCT(); % get OCT probe configuration
-enCalibTune = true; % if compensate for calibration error
-T_flange_probe_new = CompCalibErr(probe.T_flange_probe);
-WIDTH_BEGIN = 1;
-WIDTH = size(data.OCT(:, :, 1), 2) - (WIDTH_BEGIN - 1) - 0;
-FRM_NUM = size(data.OCT, 3);
-assert(WIDTH > 0, 'frame wdith less than 0');
-imgFiltThresh = 50; % 48
-fit_window = 110;
-isVisualize = false;
-% ================================
-
-% pre-allocate point coordinates
-pc_x = zeros(1, WIDTH * FRM_NUM, 'single');
-pc_y = zeros(1, WIDTH * FRM_NUM, 'single');
-ext_coeff_raw = zeros(1, WIDTH * FRM_NUM, 'single');
-
-% calculate pixel local coordinates in one frame
-col = WIDTH_BEGIN:WIDTH_BEGIN + WIDTH - 1;
-row = ones(1, WIDTH);
-xlocal = zeros(1, length(col));
-ylocal =- (probe.y / probe.width) .* (col - 1) + probe.y / 2;
-zlocal = (probe.z / probe.height) .* (row - 1);
-
+%% stack BScans in lateral direction
+BScan_blend = zeros(height, width * length(data_sizes), min(data_sizes) - 1, 'uint8');
 tic;
-
-for frm = 1:FRM_NUM % 4200
-    fprintf('process (%d/%d) image ... \n', frm, size(data.OCT, 3));
-    BScan = data.OCT(:, :, frm);
-    % get extinction coefficient
-    [ec, ~] = GetExtCoeff(BScan, imgFiltThresh, fit_window, isVisualize);
-    T = data.pose(:, :, frm);
-    % compensate for calibration err
-    if enCalibTune
-        T_base_flange = T / probe.T_flange_probe; % T*inv(probe.T_flange_probe)
-        T = T_base_flange * T_flange_probe_new;
+for frm = 1:min(data_sizes) - 1
+    % stitch images in lateral direction
+    for i = 1:length(data_sizes)
+        BScan_blend(:, (length(data_sizes) - i) * width + 1:(length(data_sizes) - i) * width + width, frm) ...
+            = data.OCT(:, :, frm + sum(data_sizes(1:i - 1)));
     end
-
-    if abs(det(T) - 1.0) > 1e-3
-        warning('frm %d does not have a valid transformation', frm)
-        continue
-    end
-
-    [xglobal, yglobal, ~] = TransformPoints(T, xlocal, ylocal, zlocal);
-    % store coordinates
-    pc_x((frm - 1) * WIDTH + 1:frm * WIDTH) = xglobal * 1e3; % mm
-    pc_y((frm - 1) * WIDTH + 1:frm * WIDTH) = yglobal * 1e3;
-    ext_coeff_raw((frm - 1) * WIDTH + 1:frm * WIDTH) = ec;
+    fprintf('process (%d/%d) slice ... \n', frm, min(data_sizes) - 1);
 end
-
-valid_ind = find(pc_x == 0 & pc_y == 0, 1);
-pc_x(valid_ind:end) = [];
-pc_y(valid_ind:end) = [];
-ext_coeff_raw(valid_ind:end) = [];
-
+clear frm isVis
 fprintf('processing data takes %f sec \n', toc);
-clear xlocal ylocal zlocal xglobal yglobal zglobal
-clear ec row col BScan probe
 
-%% project pointcloud to 2D grid
-% limit extinction coeff value range
-ext_coeff = ext_coeff_raw;
-lowBound = 0;
-upBound = mean(ext_coeff) + 1.0 * std(ext_coeff);
-outlier_ind = find(ext_coeff < lowBound | ext_coeff > upBound);
-ext_coeff(outlier_ind) = nan;
+% volumeViewer(BScan_blend);
+% save('mosaiced_volume.mat','BScan_blend','-v7.3');
 
+%% generate attenuation map
+ext_coeff_map = zeros(size(BScan_blend, 2), size(BScan_blend, 3), 'single');
 tic;
-scale = 0.7;
-GRID_HEIGHT = round(WIDTH * length(data_sizes) * scale);
-GRID_WIDTH = round(min(data_sizes) * scale);
-map_raw = zeros(GRID_HEIGHT, GRID_WIDTH, 'single');
-
-res_ele = GRID_WIDTH / (max(pc_x) - min(pc_x));
-res_lat = GRID_HEIGHT / (max(pc_y) - min(pc_y));
-ind_ele = round((pc_x - min(pc_x)) * res_ele);
-ind_lat = round((pc_y - min(pc_y)) * res_lat);
-ind_ele(ind_ele == 0) = 1;
-ind_lat(ind_lat == 0) = 1;
-
-for i = 1:length(pc_x)
-    map_raw(ind_lat(i), ind_ele(i)) = ext_coeff(i);
+for i = 1:size(BScan_blend, 3)
+    [ec, ~] = GetExtCoeff(BScan_blend(:, :, i), 40, 110, false);
+    ext_coeff_map(:, i) = ec;
+    fprintf('process (%d/%d) slice ... \n', i, size(BScan_blend, 3));
 end
+clear i ec
+fprintf('processing data takes %f sec \n', toc);
 
-% clear ind_ele ind_lat
-fprintf('generate extinction coeff map took %f sec \n', toc);
+%% attenuation map before blending
+grid = ext_coeff_map;
+lowBound = 0;
+upBound = mean(grid, 'all', 'omitnan') + 0.3 * std(grid, [], 'all', 'omitnan');
+outlier_ind = grid < lowBound | grid > upBound;
+grid(outlier_ind) = nan;
+clear lowBound upBound outlier_ind
 
-%% visualize 2D attenuation map (grid)
-% interpolation
-interp_step = 0.5;
-[X_raw, Y_raw] = meshgrid(single(1:GRID_WIDTH), single(1:GRID_HEIGHT));
-[X, Y] = meshgrid(single(1:interp_step:GRID_WIDTH), single(1:interp_step:GRID_HEIGHT));
-map = interp2(X_raw, Y_raw, single(map_raw), X, Y);
-fprintf('post processing took %f sec \n', toc);
-
-xrange = [min(pc_x), max(pc_x)];
-yrange = [min(pc_y), max(pc_y)];
 figure('Position', [1920/4, 1080/4, 1200, 500])
-% map = flipud(map);
-imagesc(xrange, yrange, map, [0 1.5]); colormap gray; axis tight
-xlabel('x [mm]'); ylabel('y [mm]');
+imagesc(grid); colormap gray; axis ij
+xlabel('x [mm]'); ylabel('y [mm]')
 colorbar
+
+%% blend attenuation coefficient map based on localization info
+xdata = squeeze(data.pose(1, end, :)) * 1e3; % robot base x
+ydata = squeeze(data.pose(2, end, :)) * 1e3; % robot base y
+xrange = [min(xdata), max(xdata)];
+yrange = [min(ydata), max(ydata)];
+clear xdata ydata
+
+sec = grid; sec(isnan(sec)) = 0;
+
+combined = sec(1:width, :);
+x_fixed = mean(data.pose(1, end, 1:data_sizes(1) - 1)) * 1e3; % mm
+y_fixed = mean(data.pose(2, end, 1:data_sizes(1) - 1)) * 1e3; % mm
+for i = 2:length(data_sizes)
+    % load segment
+    prev = combined;
+    curr = sec((i - 1) * width:i * width, :);
+    % calculate offsets
+    x_moving = mean(data.pose(1, end, sum(data_sizes(1:i - 1)) + 1:sum(data_sizes(1:i - 1)) + data_sizes(i) - 1)) * 1e3; % mm
+    y_moving = mean(data.pose(2, end, sum(data_sizes(1:i - 1)) + 1:sum(data_sizes(1:i - 1)) + data_sizes(i) - 1)) * 1e3; % mm
+    ovlp_hori = round(abs(x_fixed - x_moving) * (min(data_sizes) / diff(xrange)));
+    ovlp_vert = round(abs(y_fixed - y_moving) * (width / 7.6));
+    curr = imtranslate(curr, [-ovlp_hori, 0]);
+    combined = [combined(1:end - ovlp_vert, :); curr];
+    % mosaic overlapped region
+    if ovlp_vert > 0
+        w = rescale(1 - tanh(rescale(1:ovlp_vert) - 0.5)); % weighting function
+        ovlp_sec = zeros(ovlp_vert, size(sec, 2), 'single');
+        for r = 1:ovlp_vert
+            ovlp_sec(r, :) = w(r) * prev(end - ovlp_vert + r, :) + (1 - w(r)) * curr(r, :);
+        end
+        combined(size(prev, 1) - ovlp_vert:size(prev, 1) - 1, :) = ovlp_sec;
+    end
+    x_fixed = x_moving;
+    y_fixed = y_moving;
+end
+clear prev curr ovlp_sec sec i r x_fixed y_fixed x_moving y_moving
+
+interp_step = 0.7;
+[X_raw, Y_raw] = meshgrid(1:size(combined, 2), 1:size(combined, 1));
+[X, Y] = meshgrid(1:interp_step:size(combined, 2), 1:interp_step:size(combined, 1));
+combined = interp2(X_raw, Y_raw, combined, X, Y);
+clear interp_step X_raw Y_raw X Y
+figure('Position', [1920/4, 1080/4, 1200, 500]);
+imagesc(xrange, yrange, combined); colormap gray;
+% imagesc(combined); colormap gray;
+xlabel('x [mm]'); ylabel('y [mm]'); colorbar

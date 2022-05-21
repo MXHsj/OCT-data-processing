@@ -23,7 +23,7 @@ BScan = double(BScan);
 mu_t = zeros(1,size(BScan,2)); amp = zeros(1,size(BScan,2));
 
 if modelID == 0
-    % ===== single scattering model =====
+    % ===== single scattering model (deprecated) =====
     % parameters:
     % p(1) -- C:    scaling constant
     % p(2) -- mu_t: attenuation coefficient
